@@ -1,0 +1,17 @@
+node_modules/
+.DS_Store
+unpackage/
+dist/
+
+
+.env.development
+
+
+.projcet
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
