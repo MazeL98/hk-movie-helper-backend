@@ -4,12 +4,13 @@
   "description": "backend for cineplan",
   "main": "main.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
+    "build": "cross-env NODE_ENV=production tsc",
+    "start": "cross-env NODE_ENV=production node dist/main.js",
     "db:sync": "ts-node src/db/sync.ts --alter",
     "db:sync:prod": "NODE_ENV=production ts-node src/db/sync.ts",
+    "prod":"cross-env NODE_ENV=production nodemon --exec  ts-node src/main.ts",
     "dev": "nodemon --exec ts-node src/main.ts",
-    "test": "ts-node src/libs/format.ts"
+    "test": "ts-node src/practice.ts"
   },
   "author": "",
   "license": "ISC",
