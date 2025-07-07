@@ -8,13 +8,14 @@
     "start": "cross-env NODE_ENV=production node dist/main.js",
     "db:sync": "ts-node src/db/sync.ts --alter",
     "db:sync:prod": "NODE_ENV=production ts-node src/db/sync.ts",
-    "prod":"cross-env NODE_ENV=production nodemon --exec  ts-node src/main.ts",
+    "prod": "cross-env NODE_ENV=production nodemon --exec  ts-node src/main.ts",
     "dev": "nodemon --exec ts-node src/main.ts",
     "test": "ts-node src/practice.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@types/humps": "^2.0.6",
     "@types/koa": "^2.15.0",
+    "@types/koa__cors": "^5.0.0",
     "@types/koa__router": "^12.0.4",
     "@types/koa-bodyparser": "^4.3.12",
     "@types/mysql": "^2.15.26",
