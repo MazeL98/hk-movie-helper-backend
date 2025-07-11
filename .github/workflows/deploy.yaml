@@ -85,7 +85,7 @@ jobs:
     #  生成 .env.remote
     - name: Generate .env.remote with image name
       run: |
-          echo "FRONTEND_IMAGE_PROD=$(echo '${{ steps.meta.outputs.tags }}' | cut -d',' -f1)" > .env.remote
+          echo "BACKEND_IMAGE_PROD=$(echo '${{ steps.meta.outputs.tags }}' | cut -d',' -f1)" > .env.remote
       shell: bash  
 
     # 上传 .env.remote 到服务器
