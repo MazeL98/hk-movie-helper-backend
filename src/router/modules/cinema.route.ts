@@ -6,7 +6,7 @@ const cinemaRouter = new Router({
 });
 
 cinemaRouter.get("/list", async (ctx: any, next: any) => {
-  console.log("收到list请求")
+  console.log("收到list请求",ctx.path)
     const { pageNo = 1, pageSize = 20, districtId,theaterId } = ctx.query;
     // Convert query string to number
     const pageNumber = parseInt(pageNo as string, 10);

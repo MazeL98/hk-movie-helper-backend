@@ -19,6 +19,5 @@ for(const file of files) {
 }
 
 
-
 // 导出总路由
 export default router;
