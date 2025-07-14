@@ -81,7 +81,7 @@ const processDetail = async (
         const details_hk = await detailPage.evaluate(() => {
           let poster_url_external:string | null | undefined = ''
           // 先取懒加载的属性，若没有则尝试正常取
-          poster_url_external = document.querySelector('.movie-image-container img')?.getAttribute('date-src')
+          poster_url_external = document.querySelector('.movie-image-container img')?.getAttribute('data-src')
           if(!poster_url_external) {
             poster_url_external = document.querySelector('.movie-image-container img')?.getAttribute('src')
           }

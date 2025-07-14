@@ -181,7 +181,7 @@ const scrapeInfo = async (page: Page, urls: string[]) => {
     for (let i = 0; i < urls.length; i += batchSize) {
         const batch = urls.slice(i, i + batchSize);
         console.log(
-            `source: broadway 正在处理第 ${i + 1}-${i + batch.length}/${
+            `source: 英皇 正在处理第 ${i + 1}-${i + batch.length}/${
                 urls.length
             } 部电影`
         );
@@ -192,7 +192,7 @@ const scrapeInfo = async (page: Page, urls: string[]) => {
                 result.push(res.value);
             } else {
                 console.error(
-                    `source: eeg 获取电影信息失败: ${batch[index]}`,
+                    `source: 英皇 获取电影信息失败: ${batch[index]}`,
                     res.reason
                 );
                 result.push(batch[index]); // 保留基本数据

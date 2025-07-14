@@ -30,7 +30,7 @@ class DoubanCrawler {
 
     constructor(options: any) {
         this.options = {
-            maxRetries: options.maxRetries || 3,
+            maxRetries: options.maxRetries || 2,
             concurrency: options.concurrency || 2, // 同时运行的浏览器数量
             delayBetweenRequests: options.delayBetweenRequests || {
                 min: 2000,
@@ -405,7 +405,7 @@ class DoubanCrawler {
 async function main() {
     const scraper = new DoubanCrawler({
         concurrency: 1,
-        delayBetweenRequests: { min: 6000, max: 15000 },
+        delayBetweenRequests: { min: 5000, max: 10000 },
     });
 
     await scraper.scrape();

@@ -1,14 +1,9 @@
 import { startCrawlerProcess, qiniuUpload } from "../libs/utils";
 
-import {
-
-    FilmItemWithSchedule,
-    SaveAndUploadFilmRes,
-} from "../types/film";
+import { FilmItemWithSchedule, SaveAndUploadFilmRes } from "../types/film";
 import { FILM_SOURCE } from "../const/film_source";
 import { filmCrawlerScripts } from "../const/film_script";
 import { QI_NIU } from "../config/config.qiniu";
-import { ENV_CONFIG } from "../config/config.default";
 
 import filmService from "../services/film.service";
 import scheduleService from "../services/schedule.service";
@@ -48,20 +43,22 @@ class Crawler {
                 path,
                 message: async (data: any) => {
                     if (!Array.isArray(data)) {
-                        reject(`来源 ${source} 爬虫数据获取错误: ${JSON.stringify(data)}`);
+                        reject(
+                            `来源 ${source} 爬虫数据获取错误: ${JSON.stringify(
+                                data
+                            )}`
+                        );
                         return;
                     }
                     // 处理爬虫数据
                     try {
                         let result: SaveAndUploadFilmRes =
                             await this._processFilmData(data, source);
-                           // 上传图片
-                            const { success, failed } =
-                                await this._uploadImageForFilmData(
-                                    data
-                                );
-                            result.uploadSuccess = success;
-                            result.uploadFailed = failed;
+                        // 上传图片
+                        const { success, failed } =
+                            await this._uploadImageForFilmData(data);
+                        result.uploadSuccess = success;
+                        result.uploadFailed = failed;
 
                         resolve(result);
                     } catch (error) {
@@ -84,10 +81,15 @@ class Crawler {
         });
     }
 
-    private async _filterAndSaveSchedule(data: FilmItemWithSchedule,targetId:number,source:FILM_SOURCE) {
+    private async _filterAndSaveSchedule(
+        data: FilmItemWithSchedule,
+        targetId: number,
+        source: FILM_SOURCE
+    ) {
         if (
             !data.scheduleByCinemaArr ||
-            !Array.isArray(data.scheduleByCinemaArr) || !targetId
+            !Array.isArray(data.scheduleByCinemaArr) ||
+            !targetId
         )
             return;
         for (const cinemaItem of data.scheduleByCinemaArr) {
@@ -95,11 +97,11 @@ class Crawler {
             for (const schedule of cinemaItem.schedules) {
                 let { date, time, attr, house } = schedule;
                 if (!date || !time) continue;
-                date = parseScheduleDate(date,source);
-                time = parseScheduleTime(time,source);
+                date = parseScheduleDate(date, source);
+                time = parseScheduleTime(time, source);
                 try {
                     await scheduleService.addSchedule({
-                        film_id:targetId,
+                        film_id: targetId,
                         cinema_name,
                         date,
                         time,
@@ -126,27 +128,22 @@ class Crawler {
         for (const item of data) {
             try {
                 item.source = source;
- 
                 // 将 scheduleByCinemaArr 提取并存入schedule表格
                 const { scheduleByCinemaArr, ...rest } = item;
                 const id = await filmService.addFilmData(rest);
-                if(typeof id === 'number') {
-                  await this._filterAndSaveSchedule(item,id,source);
-                  success++;
+                if (typeof id === "number") {
+                    await this._filterAndSaveSchedule(item, id, source);
+                    success++;
                 } else {
-                  failed++;
+                    failed++;
                 }
-                
             } catch (error: any) {
                 failed++;
                 // 详细记录错误
-                console.error(
-                    `电影数据处理失败: ${item.name_hk}`,
-                    {
-                        error: error.message,
-                        stack: error.stack,
-                    }
-                );
+                console.error(`电影数据处理失败: ${item.name_hk}`, {
+                    error: error.message,
+                    stack: error.stack,
+                });
 
                 failures.push({
                     name: item.name_hk,
@@ -169,12 +166,10 @@ class Crawler {
         };
     }
     // 处理爬虫数据
-    private async _uploadImageForFilmData(
-        data: FilmItemWithSchedule[],
-    ) {
+    private async _uploadImageForFilmData(data: FilmItemWithSchedule[]) {
         // 将静态资源上传到七牛云生成新path
         // 保存当前的代理设置
-        console.log("开始执行upload")
+        console.log("开始执行upload");
         const originalHttpProxy = process.env.HTTP_PROXY;
         const originalHttpsProxy = process.env.HTTPS_PROXY;
         const originalNodeTlsRejectUnauthorized =
@@ -193,7 +188,7 @@ class Crawler {
             await Promise.allSettled(
                 data.map(async (item: FilmItemWithSchedule) => {
                     // 将海报图片存为静态资源
-                    if (item.poster_url_external ) {
+                    if (item.poster_url_external) {
                         try {
                             const resData = await qiniuUpload({
                                 url: item.poster_url_external,
@@ -202,13 +197,16 @@ class Crawler {
                                 access_key: QI_NIU.keys.ACCESS_KEY,
                                 secret_key: QI_NIU.keys.SECRET_KEY,
                             });
-                            console.log("上传结果",JSON.stringify(resData))
+                            console.log("上传结果", JSON.stringify(resData));
                             if (resData.data) {
                                 // 数据库中更新url属性
                                 try {
                                     await filmService.addFilmData({
-                                        name_hk:item.name_hk,
-                                        poster_url_internal: QI_NIU.buckets.cineplan.domain + '/' + resData.data,
+                                        name_hk: item.name_hk,
+                                        poster_url_internal:
+                                            QI_NIU.buckets.cineplan.domain +
+                                            "/" +
+                                            resData.data,
                                     });
                                     success++;
                                 } catch (error) {

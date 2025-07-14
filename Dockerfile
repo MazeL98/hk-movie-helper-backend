@@ -27,6 +27,6 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY .env.production .env
 
-EXPOSE 3000
+EXPOSE 3033
 
 CMD ["node", "dist/main.js"]

@@ -73,9 +73,10 @@ interface QiniuUploadOptions {
 // 调用七牛云官方提供的上传API
 export function qiniuUpload(options: QiniuUploadOptions): Promise<{data:string}> {
   const mac = new Qiniu.auth.digest.Mac(options.access_key,options.secret_key),
-  conf = new Qiniu.conf.Config({
-    zone: Qiniu.zone.Zone_z2  // 华东区域
-  }),
+  // conf = new Qiniu.conf.Config({
+  //   zone: Qiniu.zone.Zone_z2  // 华东区域
+  // }),
+  conf = new Qiniu.conf.Config(),
   client = new Qiniu.rs.BucketManager(mac,conf),
   key =  nanoid() + options.ext;
   return new Promise((resolve,reject) =>{
