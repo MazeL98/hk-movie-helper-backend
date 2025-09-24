@@ -10,7 +10,7 @@ type IMDBFilmItem = {
 } & FilmItem;
 
 const getFilmsWidthDirectorId = async () => {
-    const allFilms = await filmService.getFilmData({}, [
+    const allFilms = await filmService.getFilms({}, [
         "film_source_id",
         "source",
         "name_en",

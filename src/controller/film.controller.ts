@@ -3,7 +3,7 @@ import scheduleListService from "../services/applicationServices/scheduleList.se
 export const getFilmList = async (pageNo: number, pageSize: number,searchVal?:string) => {
     if (!pageNo || !pageSize)
         return console.log(
-            "Error in GetFilmList: pageNo or pageSize or queryType is undefined"
+            "GetFilmList Failed: 缺少必要参数 pageNo or pageSize or queryType"
         );
     let result = await filmService.getPaginatedFilms(pageNo, pageSize, searchVal,[
         "id",
@@ -14,6 +14,7 @@ export const getFilmList = async (pageNo: number, pageSize: number,searchVal?:st
         "director_simplified",
         "director_en",
         "rating_douban",
+        "rating_imdb",
         "poster_url_internal",
     ]);
 

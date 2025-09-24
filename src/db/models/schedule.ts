@@ -7,15 +7,15 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 
-const { STRING, INT, DATE } = DataTypes;
+const { STRING, BIGINT, INT,DATE } = DataTypes;
 
 class Schedule extends Model<
     InferAttributes<Schedule>,
     InferCreationAttributes<Schedule>
 > {
-    declare id?: CreationOptional<number>;
+    declare id?: CreationOptional<bigint>;
 
-    declare film_id: number;
+    declare film_id: bigint;
     declare cinema_id?: number;
     declare cinema_name: string;
     declare date: string;
@@ -28,14 +28,15 @@ Schedule.init(
     {
         id: {
             comment: "schedule id",
-            type: INT,
+            type: BIGINT,
+            allowNull:false,
             unique: true,
             primaryKey: true,
             autoIncrement: true,
         },
         film_id:{
           comment: "对应的电影在本平台的id",
-          type: INT,
+          type: BIGINT,
           allowNull:true
         },
         cinema_id: {

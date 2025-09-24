@@ -7,7 +7,7 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 import { staticCinemas } from "./staticCinemas";
-const { STRING, INT } = DataTypes;
+const { STRING, INT, } = DataTypes;
 
 class Cinema extends Model<
     InferAttributes<Cinema>,

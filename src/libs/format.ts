@@ -8,6 +8,23 @@ export const isValidDateFormat = (str: string) => {
     return regex.test(str);
 };
 
+// 字符统一转换为全角或者半角
+export function formatWidth(str:string, mode = "half") {
+  if (mode === "half") {
+    // 全角 -> 半角
+    return str.replace(/[\uFF01-\uFF5E]/g, (ch:string) =>
+      String.fromCharCode(ch.charCodeAt(0) - 0xFEE0)
+    ).replace(/\u3000/g, " ");
+  } else if (mode === "full") {
+    // 半角 -> 全角
+    return str.replace(/[\u0021-\u007E]/g, (ch:string) =>
+      String.fromCharCode(ch.charCodeAt(0) + 0xFEE0)
+    ).replace(/ /g, "\u3000");
+  }
+  return str;
+}
+
+
 export function parseScheduleDate(input: string, source: FILM_SOURCE): string {
     let result: string;
     switch (source) {
@@ -142,6 +159,10 @@ export const normalizeBroadwayFilmName = (name: string) => {
     if (match) {
         result = match[1];
     }
+
+    // 统一转换为全角字符
+    result = formatWidth(result);
+    
     const blacklist = [
         "<",
         ">",
@@ -158,6 +179,7 @@ export const normalizeBroadwayFilmName = (name: string) => {
 
     const escapeRegex = (str: string) =>
         str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
     const escapedPattern = new RegExp(
         blacklist.map(escapeRegex).join("|"),
         "gi"

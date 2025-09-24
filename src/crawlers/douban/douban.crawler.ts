@@ -63,7 +63,7 @@ class DoubanCrawler {
     }
 
     async getOriginData() {
-        return await filmService.getFilmData({}, [
+        return await filmService.getFilms({}, [
             "name_hk",
             "source",
             "imdb_id",
@@ -228,11 +228,6 @@ class DoubanCrawler {
             page = await context.newPage();
             while (retries < this.options.maxRetries && !success) {
                 try {
-                    // 先访问首页，然后才访问API，模拟真实用户行为
-                    await page.goto("https://movie.douban.com/", {
-                        waitUntil: "domcontentloaded",
-                    });
-                    await this.randomDelay();
                     const searchUrl = this.getSearchUrl(currentData);
                     await page.goto(searchUrl, {
                         timeout: 10000,
@@ -254,7 +249,6 @@ class DoubanCrawler {
                             });
                     }
 
-                    
                     const hasContent =
                         (await page.locator(".item-root").count()) > 0;
                     if (!hasContent) {
@@ -275,7 +269,7 @@ class DoubanCrawler {
                             console.log(
                                 `第${retries + 1}/${
                                     this.options.maxRetries
-                                }失败，原因是搜索页内容异常`
+                                }失败，原因是搜索页内容异常，可能是触发了反爬机制，限制访问`
                             );
                             retries++;
                             continue;
@@ -405,7 +399,8 @@ class DoubanCrawler {
 async function main() {
     const scraper = new DoubanCrawler({
         concurrency: 1,
-        delayBetweenRequests: { min: 5000, max: 10000 },
+        delayBetweenRequests: { min: 13000, max: 20000 },
+        maxRetries:1
     });
 
     await scraper.scrape();

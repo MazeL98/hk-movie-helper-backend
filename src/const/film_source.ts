@@ -39,7 +39,7 @@ export const filmSources =  {
     name: 'EEG',
     endPoints: [
       {
-        url: 'https://www.emperorcinemas.com/zh/ticketing/by_movie?',
+        url: 'https://www.emperorcinemas.com/film',
         handler: 'scrapeData'
       },
     ],

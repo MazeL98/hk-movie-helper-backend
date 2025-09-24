@@ -1,5 +1,6 @@
+
 export type FilmItem = {
-    id?: number;
+    id?: bigint;
     film_source_id?: number;
     imdb_id?: string;
     name_hk: string;
@@ -41,8 +42,8 @@ export enum FilmQueryType {
 }
 
 export interface SaveAndUploadFilmRes {
+  data: any;
   source: number;
-  total: number;
   success:number;
   failed:number;
   uploadSuccess?: number;

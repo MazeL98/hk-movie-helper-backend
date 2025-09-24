@@ -2,7 +2,6 @@ import { Op, InferAttributes } from "sequelize";
 import ScheduleModel from "../db/models/schedule";
 import cinemaService from "./cinema.service";
 
-
 type Schedule = InferAttributes<ScheduleModel>;
 
 class ScheduleService {
@@ -22,31 +21,13 @@ class ScheduleService {
         }
     }
 
-    // async queryFilmId(data: Schedule) {
-    //     const filmRes = await filmService.getOneFilm(
-    //         {
-    //             source: Number(data.source),
-    //             film_source_id: Number(data.film_source_id),
-    //         },
-    //         ["id"]
-    //     );
-    //     if (filmRes && filmRes.id) {
-    //         data.film_id = filmRes.id;
-    //     } else {
-    //         console.log(
-    //             `没有在数据库找到${data.film_source_id} source${data.source}的film_id，添加字段失败`
-    //         );
-    //     }
-    // }
-
     async addSchedule(data: Schedule) {
-      console.log("执行addSchedule")
         const target = await ScheduleModel.findOne({
             where: {
-              film_id:data.film_id,
+                film_id: data.film_id,
                 date: data.date,
                 time: data.time,
-                attr:data.attr,
+                attr: data.attr,
                 cinema_name: data.cinema_name,
             },
         });
@@ -57,7 +38,7 @@ class ScheduleService {
             await ScheduleModel.create(data);
             console.log("添加排片成功", data.film_id);
         } else {
-          console.log("找到相似的排片结果")
+            console.log("找到相似的排片结果");
             try {
                 // 只更新非undefined/null的字段
                 for (const [key, value] of Object.entries(data)) {
@@ -118,18 +99,19 @@ class ScheduleService {
 
     // 查询符合日期范围的
     async getSchedulesBetween(
-        startDate: string,
-        endDate: string,
+        startDate?: string,
+        endDate?: string,
         filmId?: number
     ) {
         try {
-            const options:any = {
-                date: {
-                    [Op.gte]: startDate,
-                    [Op.lte]: endDate,
-                },
-            };
-            if(filmId) options.film_id=filmId
+            const options: any = {};
+            // 构建日期条件
+            if (startDate || endDate) {
+                options.date = {};
+                if (startDate) options.date[Op.gte] = startDate;
+                if (endDate) options.date[Op.lte] = endDate;
+            }
+            if (filmId) options.film_id = filmId;
             const res = await ScheduleModel.findAll({
                 where: options,
             });

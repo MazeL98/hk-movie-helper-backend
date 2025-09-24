@@ -141,10 +141,10 @@ class ScheduleListService {
         if (!filmId) return null;
         let rawSchedules: any = [];
         if (
-            start &&
-            isValidDateFormat(start) &&
-            end &&
-            isValidDateFormat(end)
+            (start &&
+            isValidDateFormat(start)) ||
+            (end &&
+            isValidDateFormat(end) )
         ) {
             rawSchedules = await scheduleService.getSchedulesBetween(
                 start,

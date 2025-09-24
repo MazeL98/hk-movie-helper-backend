@@ -10,7 +10,8 @@
     "db:sync:prod": "ts-node src/db/sync.ts --alter",
     "prod": "cross-env NODE_ENV=production nodemon --exec  ts-node src/main.ts",
     "dev": "nodemon --exec ts-node src/main.ts",
-    "test": "ts-node src/practice.ts"
+    "crawl": "ts-node src/jobs/dailyTask.ts",
+    "practice": "ts-node generate.ts"
   },
   "author": "",
   "license": "ISC",
@@ -18,11 +19,14 @@
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "chalk": "^4.1.2",
     "cross-env": "^7.0.3",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "douban-search-crack": "^1.0.6",
     "humps": "^2.0.1",
+    "jsonwebtoken": "^9.0.2",
     "koa": "^2.16.0",
     "koa-bodyparser": "^4.4.1",
     "koa-generic-session": "^2.3.1",
@@ -45,7 +49,9 @@
     "zod": "^3.25.46"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/humps": "^2.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/koa": "^2.15.0",
     "@types/koa__cors": "^5.0.0",
     "@types/koa__router": "^12.0.4",

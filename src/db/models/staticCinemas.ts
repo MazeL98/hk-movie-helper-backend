@@ -1,6 +1,7 @@
-export const staticCinemas = [
+
+export const staticCinemas= [
     {
-        id: 1,
+        id:1,
         name_hk: "MOViE MOViE Pacific Place (金鐘)",
         name_simplified: "MOViE MOViE Pacific Place (金钟)",
         name_en: "MOViE MOViE Pacific Place (Admiralty)",

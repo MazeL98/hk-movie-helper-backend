@@ -10,6 +10,7 @@ import  {ENV_CONFIG} from './config/config.default';
 
 const app = new Koa();
 app.use(bodyParser());
+
 app.use(responseFormatter);
 app.use(cors({
     origin: '*',

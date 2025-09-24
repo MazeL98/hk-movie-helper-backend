@@ -7,10 +7,10 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 
-const { STRING, INT } = DataTypes;
+const { STRING, BIGINT,INT } = DataTypes;
 
 class Film extends Model<InferAttributes<Film>, InferCreationAttributes<Film>> {
-    declare id?: CreationOptional<number>;
+    declare id?: CreationOptional<bigint>;
     declare film_source_id?: number;
     declare imdb_id?: string;
     declare douban_id?: string;
@@ -40,7 +40,7 @@ Film.init(
     {
         id: {
             comment: "film id",
-            type: INT,
+            type: BIGINT,
             unique: true,
             primaryKey: true,
             autoIncrement: true,

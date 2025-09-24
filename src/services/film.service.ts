@@ -1,10 +1,15 @@
 import { InferAttributes, Op } from "sequelize";
+
 import FilmModel from "../db/models/film";
+
 import { FILM_SOURCE } from "../const/film_source";
 import { PaginatedResult } from "../types/common";
-type FilmItem = InferAttributes<FilmModel>;
+
 import dayjs from "dayjs";
 import { normalizeBroadwayFilmName } from "../libs/format";
+
+type FilmItem = InferAttributes<FilmModel>;
+
 const formatDate = (dateString: string, source: number): string => {
     if (!dateString) return "";
     if (source === FILM_SOURCE.EEG) {
@@ -61,57 +66,72 @@ const cleanData = (data: FilmItem): FilmItem => {
 };
 
 class FilmService {
-    async addFilmData(data: FilmItem) {
-        // 添加数据成功后返回电影id
-        let result: number | null = null;
-        const cleanedData = cleanData(data);
+    async addFilmData(data: FilmItem): Promise<FilmItem | null> {
+        const target = await this.searchByName(data.name_hk);
+        if (target) return null;
 
-        const target = await FilmModel.findOne({
-            where: {
-                name_hk: cleanedData.name_hk,
-            },
-        });
+        try {
+            return await FilmModel.create(cleanData(data));
+        } catch (createError) {
+            throw createError;
+        }
+    }
 
-        if (target) {
+    // 更新电影数据
+    async updateFilmData(data: FilmItem) {
+        if (!data.name_hk) {
+            console.log("updateFilmData Failed: 缺少 name_hk 字段");
+            return;
+        }
+      
+        const old = await this.searchByName(data.name_hk);
+
+        if (old && old.id) {
             try {
                 // 只更新非undefined/null的字段
+                const cleanedData = cleanData(data);
                 for (const [key, value] of Object.entries(cleanedData)) {
-                    if (value !== undefined && value !== null) {
-                        target.set(key as keyof FilmItem, value);
+                    if (key !== 'name_hk' && value !== undefined && value !== null) {
+                       old.set(key as keyof FilmItem, value);
                     }
                 }
-                await target.save();
+                await old.save();
             } catch (updateError) {
                 console.error(
-                    "更新数据时发生错误",
+                    "Error in updateFilmData",
                     JSON.stringify(updateError)
                 );
                 throw updateError;
             }
-            result = target.id as number;
-            return result;
-        } else {
-            // console.log( `添加新数据，来源${data.film_source_id} ${data.film_source_id}`)
-            try {
-                const res = await FilmModel.create(cleanedData);
-                result = res.id as number;
-                return result;
-            } catch (createError) {
-                console.error(
-                    "添加数据时发生错误",
-                    JSON.stringify(createError)
-                );
-                throw createError;
-            }
         }
     }
+    // fuzzySearch 根据raw_name模糊搜索电影条目，返回普通对象数据（而不是模型实例数据）
+    async fuzzySearchByName(raw: string){
+        //格式化名字
+        if (!raw) return null;
+        const formatted = normalizeBroadwayFilmName(raw);
+        const result = await this.getOneFilm({ name_hk: formatted });
+        return result;
+    }
+
+    // 根据raw_name查询电影，返回sequelize实例
+    private async searchByName(rawName: string) {
+        //格式化名字
+        if (!rawName) return null;
+        const formattedName = normalizeBroadwayFilmName(rawName);
+        const res = await FilmModel.findOne({where: {
+          name_hk: formattedName
+        }});
+        return res;
+    }
+
     async getOneFilm(options?: any, attributes?: string[]) {
         try {
             let filterOptions: any = {};
             if (Object.keys(options).length) {
                 filterOptions = {
                     where: { ...options },
-                };
+                }; 
             }
             if (attributes?.length) {
                 filterOptions.attributes = [...attributes];
@@ -119,11 +139,15 @@ class FilmService {
             const res = await FilmModel.findOne(filterOptions);
             return res ? res.toJSON() : null;
         } catch (error) {
-            console.error("查询单个电影时发生错误", JSON.stringify(error));
+            console.error(
+                "从数据库获取单个电影时发生错误",
+                JSON.stringify(error)
+            );
             return null;
         }
     }
-    async getFilmData(options?: any, attributes?: string[]) {
+    
+    async getFilms(options?: any, attributes?: string[]) {
         try {
             let filterOptions: any = {};
             if (Object.keys(options).length) {

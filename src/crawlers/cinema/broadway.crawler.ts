@@ -8,7 +8,8 @@ const scrollAndLoad = async (page: Page) => {
     let prevCount = 0,
         currCount = 0,
         noChangeCounter = 0;
-    const maxTries = 5; // 连续5次滚动无变化则停止尝试
+    const maxTries = 6; // 连续5次滚动无变化则停止尝试
+
     console.log("来源Broadway开始模拟滚动加载...");
 
     while (noChangeCounter < maxTries) {
@@ -19,8 +20,8 @@ const scrollAndLoad = async (page: Page) => {
             );
             return nodes?.length || 0;
         });
-
         console.log(`当前已加载 ${currCount} 项数据`);
+
         if (currCount === prevCount) {
             noChangeCounter++;
             console.log(
@@ -31,6 +32,19 @@ const scrollAndLoad = async (page: Page) => {
             noChangeCounter = 0;
         }
 
+        //是否达到停止条件
+        const reachedBottom = await page.evaluate(() => {
+            return (
+                window.scrollY + window.innerHeight >=
+                document.body.scrollHeight
+            );
+        });
+
+        if (reachedBottom && noChangeCounter >= 2) {
+            console.log("已滚动到底部，且没有新内容，停止。");
+            break;
+        }
+
         // 执行滚动
         await page.evaluate(() => {
             // 获取当前窗口高度
@@ -38,7 +52,7 @@ const scrollAndLoad = async (page: Page) => {
             const totalHeight = document.body.scrollHeight;
             const currentScroll = window.scrollY;
 
-            // 计算下一个滚动位置（随机化滚动量增加真实性）
+            // 计算下一个滚动位置，如果快到页面底部，就采取totalHeight - windowHeight
             const scrollAmount = windowHeight * 1.9;
             const nextPosition = Math.min(
                 currentScroll + scrollAmount,
@@ -52,7 +66,7 @@ const scrollAndLoad = async (page: Page) => {
             });
         });
 
-        // 等待数据加载
+        //等待数据加载
         await page.waitForTimeout(4000);
     }
 
@@ -79,12 +93,16 @@ const processDetail = async (
                 );
             });
         const details_hk = await detailPage.evaluate(() => {
-          let poster_url_external:string | null | undefined = ''
-          // 先取懒加载的属性，若没有则尝试正常取
-          poster_url_external = document.querySelector('.movie-image-container img')?.getAttribute('data-src')
-          if(!poster_url_external) {
-            poster_url_external = document.querySelector('.movie-image-container img')?.getAttribute('src')
-          }
+            let poster_url_external: string | null | undefined = "";
+            // 先取懒加载的属性，若没有则尝试正常取
+            poster_url_external = document
+                .querySelector(".movie-image-container img")
+                ?.getAttribute("data-src");
+            if (!poster_url_external) {
+                poster_url_external = document
+                    .querySelector(".movie-image-container img")
+                    ?.getAttribute("src");
+            }
             const director_hk =
                 document
                     .querySelector(
@@ -100,7 +118,7 @@ const processDetail = async (
             return {
                 director_hk,
                 cast_hk,
-                poster_url_external
+                poster_url_external,
             };
         });
         await detailPage.goto(
@@ -274,7 +292,9 @@ const scrapeDetails = async (page: Page, data: any[]) => {
     return result;
 };
 
-const scrapeData = async (page: Page): Promise<FilmItemWithSchedule[] | any> => {
+const scrapeData = async (
+    page: Page
+): Promise<FilmItemWithSchedule[] | any> => {
     await scrollAndLoad(page);
     // 提取所需数据
     console.log("开始提取broadway粤语数据");
