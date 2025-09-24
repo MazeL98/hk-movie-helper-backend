@@ -6,7 +6,7 @@ export type Event = InferAttributes<EventModel>;
 
 class EventService {
     //按用户按日期区间查询日程
-    async getEventByUserBetween(userId:number,startDate:string,endDate:string){
+    async getEventByUserBetween(userID:bigint,startDate:string,endDate:string){
        const options: any = {};
             // 构建日期条件
             if (startDate || endDate) {
@@ -14,7 +14,7 @@ class EventService {
                 if (startDate) options.date[Op.gte] = startDate;
                 if (endDate) options.date[Op.lte] = endDate;
             }
-            if(userId) options.user_id = userId
+            if(userID) options.userID = userID
            try {
              const res = await EventModel.findAll({
               where: options
@@ -42,9 +42,9 @@ class EventService {
     }
     // 为某用户添加日程
     async addEvent(data: Event) {
-        if (!data.user_id) {
+        if (!data.userID) {
             throw new Error("缺少用户ID");
-        } else if (!data.schedule_id) {
+        } else if (!data.scheduleID) {
             throw new Error("缺少排片信息");
         }
 

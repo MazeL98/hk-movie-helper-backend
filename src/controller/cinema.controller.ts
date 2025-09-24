@@ -15,10 +15,10 @@ export const getCinemaList = async (
     let result: any;
     let queries:Partial<CinemaItem> = {};
      if(districtId) {
-      queries.district_id = districtId
+      queries.districtID = districtId
      }
      if(theaterId) {
-      queries.theater_id = theaterId
+      queries.theaterID = theaterId
      }
     result = await cinemaService.getPaginatedCinemas(pageNo,pageSize,[],queries)
     return result;

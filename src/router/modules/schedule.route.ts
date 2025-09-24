@@ -33,10 +33,10 @@ scheduleRouter.get("/valid_dates", async (ctx: any, next: any) => {
       ctx.body= null
       return;
     }
-    if(parsedQuery.data.filmId){
+    if(parsedQuery.data.filmID){
        ctx.body = await getScheduleDatesForFilm(parsedQuery.data)
-    } else if (parsedQuery.data.cinemaId) {
-      ctx.body = await getScheduleDatesForCinema(parsedQuery.data.cinemaId)
+    } else if (parsedQuery.data.cinemaID) {
+      ctx.body = await getScheduleDatesForCinema(parsedQuery.data.cinemaID)
     } else {
       ctx.body = null
       ctx.message = {error: "查询条件缺失"}

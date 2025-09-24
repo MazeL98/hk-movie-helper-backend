@@ -1,25 +1,25 @@
 
 export type FilmItem = {
     id?: bigint;
-    film_source_id?: number;
-    imdb_id?: string;
-    name_hk: string;
-    name_en?: string;
-    name_simplified?: string;
-    poster_url_external?: string;
-    poster_url_internal?: string;
-    on_screen_date?: string;
+    filmSourceID?: number;
+    imdbID?: string;
+    nameHK: string;
+    nameEN?: string;
+    nameSimplified?: string;
+    posterUrlExternal?: string;
+    posterUrlInternal?: string;
+    onScreenDate?: string;
     duration?: string;
     language?: string;
-    director_en?: string;
-    director_hk?: string;
-    director_simplified?: string;
-    cast_hk?: string;
-    cast_en?: string;
-    cast_simplified?: string;
+    directorEN?: string;
+    directorHK?: string;
+    directorSimplified?: string;
+    castHK?: string;
+    castEN?: string;
+    castSimplified?: string;
     genres?: string;
-    rating_douban?: number;
-    rating_imdb?: number;
+    ratingDouban?: number;
+    ratingImdb?: number;
     country?: string;
     status?: number;
     source?: number;
@@ -27,7 +27,7 @@ export type FilmItem = {
 
 
 export type ScheduleByCinema = {
-  cinema_name:string;
+  cinemaName:string;
   schedules:{time?:string;date?:string;house?:string;attr?:string}[]
 }
 

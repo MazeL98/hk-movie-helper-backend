@@ -8,8 +8,8 @@ type Schedule = InferAttributes<ScheduleModel>;
 import dayjs from "dayjs";
 class ScheduleListService {
     // 查询某个影院的所有电影的排片
-    async getSchedulesByCinema(cinemaId: number, date: string) {
-        if (!cinemaId || !date) {
+    async getSchedulesByCinema(cinemaID: number, date: string) {
+        if (!cinemaID || !date) {
             console.log(`getSchedulesByCinema缺少参数`);
             return null;
         }
@@ -19,13 +19,13 @@ class ScheduleListService {
         }
         let result: any;
         // 组装cinema info
-        const cinemaInfo = await cinemaService.getCinema({ id: cinemaId });
+        const cinemaInfo = await cinemaService.getCinema({ id: cinemaID });
         if (!cinemaInfo) return null;
         console.log("cinemaInfo", JSON.stringify(cinemaInfo));
         result = { ...cinemaInfo, scheduleByFilm: [] };
 
         const rawSchedules = await scheduleService.getSchedules({
-            cinema_id: cinemaId,
+            cinemaID: cinemaID,
             date: date,
         });
         console.log("rawSchedules", rawSchedules);
@@ -35,19 +35,19 @@ class ScheduleListService {
         const filmMap = new Map();
 
         for (const schedule of rawSchedules) {
-            if (!filmMap.get(schedule.film_id)) {
+            if (!filmMap.get(schedule.filmID)) {
                 // 添加film info
                 const filmInfo = await filmService.getOneFilm({
-                    id: schedule.film_id,
+                    id: schedule.filmID,
                 });
                 // 找不到schedule对应的film就放弃该schedule
                 if (!filmInfo) continue;
-                filmMap.set(schedule.film_id, {
+                filmMap.set(schedule.filmID, {
                     ...filmInfo,
                     schedules: [schedule],
                 });
             } else {
-                const filmObj = filmMap.get(schedule.film_id);
+                const filmObj = filmMap.get(schedule.filmID);
                 filmObj.schedules.push(schedule);
             }
         }
@@ -57,16 +57,16 @@ class ScheduleListService {
     }
 
     // 查询某个电影的所有影院的排片
-    async getSchedulesByFilm(filmId: number, date: string) {
-        if (!filmId || !date || !isValidDateFormat(date)) return null;
+    async getSchedulesByFilm(filmID: number, date: string) {
+        if (!filmID || !date || !isValidDateFormat(date)) return null;
         let result: any;
         // 组装 film info
-        const filmInfo = await filmService.getOneFilm({ id: filmId });
+        const filmInfo = await filmService.getOneFilm({ id: filmID });
         if (!filmInfo) return null;
         result = { ...filmInfo, scheduleByCinema: [] };
         console.log("filmInfo", filmInfo);
         const rawSchedules = await scheduleService.getSchedules({
-            film_id: filmId,
+            filmID: filmID,
             date: date,
         });
         if (!rawSchedules) return result;
@@ -74,15 +74,15 @@ class ScheduleListService {
         // 组装 cinema info + schedules
         const cinemaMap = new Map();
         for (const schedule of rawSchedules) {
-            const cinemaObj = cinemaMap.get(schedule.cinema_id);
+            const cinemaObj = cinemaMap.get(schedule.cinemaID);
             if (cinemaObj) {
                 cinemaObj.schedules.push(schedule);
             } else {
                 const cinemaInfo = await cinemaService.getCinema({
-                    id: schedule.cinema_id,
+                    id: schedule.cinemaID,
                 });
                 if (!cinemaInfo) continue;
-                cinemaMap.set(schedule.cinema_id, {
+                cinemaMap.set(schedule.cinemaID, {
                     ...cinemaInfo,
                     schedules: [schedule],
                 });
@@ -109,13 +109,13 @@ class ScheduleListService {
         if (!rawSchedules) return [];
         const filmMap = new Map();
         for (const schedule of rawSchedules) {
-            const filmObj = filmMap.get(schedule.film_id);
+            const filmObj = filmMap.get(schedule.filmID);
             if (!filmObj) {
                 const filmInfo = await filmService.getOneFilm({
-                    id: schedule.film_id,
+                    id: schedule.filmID,
                 });
                 if (!filmInfo) continue;
-                filmMap.set(schedule.film_id, {
+                filmMap.set(schedule.filmID, {
                     ...filmInfo,
                 });
             }
@@ -126,7 +126,7 @@ class ScheduleListService {
     async getScheduleDatesForCinema( cinemaId:number) {
      if (!cinemaId ) return null;
              const rawSchedules = await scheduleService.getSchedules({
-            cinema_id: cinemaId,
+            cinemaId: cinemaId,
         });
         if (!rawSchedules) return [];
         console.log(new Date('2024-05-02'))
@@ -134,11 +134,11 @@ class ScheduleListService {
     }
     // 查询某个电影的排片日期
     async getScheduleDatesForFilm(
-        filmId: number,
+        filmID: number,
         start?: string,
         end?: string
     ) {
-        if (!filmId) return null;
+        if (!filmID) return null;
         let rawSchedules: any = [];
         if (
             (start &&
@@ -149,11 +149,11 @@ class ScheduleListService {
             rawSchedules = await scheduleService.getSchedulesBetween(
                 start,
                 end,
-                filmId
+                filmID
             );
         } else {
             rawSchedules = await scheduleService.getSchedules({
-                film_id: filmId,
+                filmID: filmID,
             });
         }
         if(!rawSchedules || !rawSchedules.length) return[]

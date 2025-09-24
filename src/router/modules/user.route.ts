@@ -39,7 +39,7 @@ useRouter.post('/login',async(ctx:any) =>{
     ctx.throw(401,"邮箱或密码错误")
     return;
   }
-  const match =await bcrypt.compare(password,user?.password_hash as string)
+  const match =await bcrypt.compare(password,user?.passwordHash as string)
   if(!match) {
     ctx.throw(401,"密码错误，请重试")
     return;

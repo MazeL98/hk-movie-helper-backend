@@ -7,30 +7,30 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 
-const { STRING, BIGINT,INT } = DataTypes;
+const { STRING, BIGINT, INT } = DataTypes;
 
 class Film extends Model<InferAttributes<Film>, InferCreationAttributes<Film>> {
     declare id?: CreationOptional<bigint>;
-    declare film_source_id?: number;
-    declare imdb_id?: string;
-    declare douban_id?: string;
-    declare name_hk: string;
-    declare name_en?: string;
-    declare name_simplified?: string;
+    declare filmSourceID?: number;
+    declare imdbID?: string;
+    declare doubanID?: string;
+    declare nameHK: string;
+    declare nameEN?: string;
+    declare nameSimplified?: string;
     declare language?: string;
-    declare on_screen_date?: string;
+    declare onScreenDate?: string;
     declare duration?: string;
     declare genres?: string;
-    declare poster_url_external?: string;
-    declare poster_url_internal?: string;
-    declare director_en?: string;
-    declare director_hk?: string;
-    declare director_simplified?: string;
-    declare cast_en?: string;
-    declare cast_hk?: string;
-    declare cast_simplified?: string;
-    declare rating_douban?: number;
-    declare rating_imdb?: number;
+    declare posterUrlExternal?: string;
+    declare posterUrlInternal?: string;
+    declare directorEN?: string;
+    declare directorHK?: string;
+    declare directorSimplified?: string;
+    declare castEN?: string;
+    declare castHK?: string;
+    declare castSimplified?: string;
+    declare ratingDouban?: number;
+    declare ratingImdb?: number;
     declare country?: string;
     declare status?: number;
     declare source?: number;
@@ -45,21 +45,24 @@ Film.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        film_source_id: {
+        filmSourceID: {
             comment: "在源网站上的 id",
             type: INT,
             allowNull: true,
             unique: false,
+            field: "film_source_id",
         },
-        imdb_id: {
+        imdbID: {
             comment: "在IMDB上的 id",
             type: STRING,
             unique: false,
+            field: "imdb_id",
         },
-        douban_id: {
+        doubanID: {
             comment: "在豆瓣上的 id",
             type: STRING,
             unique: false,
+            field: "douban_id",
         },
         source: {
             comment: "来自哪个网站",
@@ -67,57 +70,69 @@ Film.init(
             allowNull: true,
             unique: false,
         },
-        name_hk: {
+        nameHK: {
             comment: "film name in hk",
             type: STRING,
             allowNull: false,
-            unique:true
+            unique: true,
+            field: "name_hk",
         },
-        name_en: {
+        nameEN: {
             comment: "film name in english",
             type: STRING,
             allowNull: true,
+            field: "name_en",
         },
-        name_simplified: {
+        nameSimplified: {
             comment: "film name in simplified chinese",
             type: STRING,
             allowNull: true,
+            field: "name_simplified",
         },
         language: {
             comment: "film language",
             type: STRING,
         },
-        on_screen_date: {
+        onScreenDate: {
             type: STRING,
+            field: "on_screen_date",
         },
         duration: {
             type: STRING,
         },
-        poster_url_external: {
+        posterUrlExternal: {
             type: STRING,
             comment: "film poster origin url",
+            field: "poster_url_external",
         },
-        poster_url_internal: {
+        posterUrlInternal: {
             type: STRING,
             comment: "film poster url in qiniuyun",
+            field: "poster_url_external",
         },
-        director_hk: {
+        directorHK: {
             type: STRING,
+            field: "director_hk",
         },
-        director_en: {
+        directorEN: {
             type: STRING,
+            field: "director_en",
         },
-        director_simplified: {
+        directorSimplified: {
             type: STRING,
+            field: "director_en",
         },
-        cast_hk: {
+        castHK: {
             type: STRING,
+            field: "cast_hk",
         },
-        cast_en: {
+        castEN: {
             type: STRING,
+            field: "cast_en",
         },
-        cast_simplified: {
+        castSimplified: {
             type: STRING,
+            field: "cast_simplified",
         },
         genres: {
             type: STRING,
@@ -125,11 +140,13 @@ Film.init(
         country: {
             type: STRING,
         },
-        rating_douban: {
+        ratingDouban: {
             type: INT,
+            field: "rating_douban",
         },
-        rating_imdb: {
+        ratingImdb: {
             type: INT,
+            field: "rating_imdb",
         },
         status: {
             type: INT,
@@ -139,7 +156,7 @@ Film.init(
     {
         sequelize: seq,
         tableName: "film",
-                defaultScope: {
+        defaultScope: {
             attributes: {
                 exclude: ["createdAt", "updatedAt", "status"],
             },

@@ -64,18 +64,18 @@ class DoubanCrawler {
 
     async getOriginData() {
         return await filmService.getFilms({}, [
-            "name_hk",
+            "nameHK",
             "source",
-            "imdb_id",
+            "imdbID",
         ]);
     }
 
     getSearchUrl(currentOriginData: FilmItem) {
         let searchUrl = "";
-        if (currentOriginData.imdb_id) {
-            searchUrl = `https://search.douban.com/movie/subject_search?search_text=${currentOriginData.imdb_id}&cat=1002`;
-        } else if (currentOriginData.name_hk) {
-          const query = formatNameForDoubanQuery(currentOriginData.name_hk)
+        if (currentOriginData.imdbID) {
+            searchUrl = `https://search.douban.com/movie/subject_search?search_text=${currentOriginData.imdbID}&cat=1002`;
+        } else if (currentOriginData.nameHK) {
+          const query = formatNameForDoubanQuery(currentOriginData.nameHK)
             searchUrl = `https://search.douban.com/movie/subject_search?search_text=${query}&cat=1002`;
         }
         return searchUrl;
@@ -212,7 +212,7 @@ class DoubanCrawler {
                     ...filmData,
                 });
             } else {
-                console.log(`爬取任务${currentData.name_hk}失败`);
+                console.log(`爬取任务${currentData.nameHK}失败`);
                 this.errorCount++;
             }
         } catch (error) {}
@@ -301,7 +301,7 @@ class DoubanCrawler {
                         retries++;
                         continue;
                     }
-                    filmData.rating_douban = await page
+                    filmData.ratingDouban = await page
                         .locator(".rating_num")
                         .evaluate((ele) => {
                             if (ele) {
@@ -314,7 +314,7 @@ class DoubanCrawler {
                             console.log("找不到评分元素", error);
                         });
 
-                    filmData.name_simplified = await page
+                    filmData.nameSimplified = await page
                         .locator("#wrapper #content h1 span:first-child")
                         .evaluate((ele) => {
                             if (ele) {
@@ -327,18 +327,18 @@ class DoubanCrawler {
                             console.log("找不到名称元素", error);
                         });
 
-                    const { director_simplified, cast_simplified } = await page
+                    const { directorSimplified, castSimplified } = await page
                         .locator("#info > span")
                         .evaluateAll((eles) => {
-                            let director_simplified = "",
-                                cast_simplified = "";
+                            let directorSimplified = "",
+                                castSimplified = "";
                             for (const ele of Array.from(eles)) {
                                 const labelEle = ele.querySelector(".pl");
                                 if (
                                     labelEle &&
                                     labelEle.textContent === "导演"
                                 ) {
-                                    director_simplified =
+                                    directorSimplified =
                                         ele.querySelector(".attrs a")
                                             ?.textContent || "";
                                 } else if (
@@ -348,28 +348,28 @@ class DoubanCrawler {
                                     const castEles =
                                         ele.querySelectorAll(".attrs span a");
                                     Array.from(castEles).forEach((item) => {
-                                        cast_simplified +=
+                                        castSimplified +=
                                             item.textContent + "/";
                                     });
-                                    cast_simplified = cast_simplified.slice(
+                                    castSimplified = castSimplified.slice(
                                         0,
                                         -1
                                     );
                                 }
                             }
                             return {
-                                director_simplified,
-                                cast_simplified,
+                                directorSimplified,
+                                castSimplified,
                             };
                         });
-                    filmData.douban_id = page.url()?.split("/")?.at(-2);
+                    filmData.doubanID = page.url()?.split("/")?.at(-2);
                     success = true;
                     return {
                         success,
                         filmData: {
                             ...filmData,
-                            director_simplified,
-                            cast_simplified,
+                            directorSimplified,
+                            castSimplified,
                         },
                     };
                 } catch (error) {

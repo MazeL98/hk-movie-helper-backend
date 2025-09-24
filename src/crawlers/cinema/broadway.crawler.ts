@@ -77,10 +77,10 @@ const processDetail = async (
     browserContext: any,
     film: FilmItemWithSchedule
 ) => {
-    if (!film.film_source_id) return film;
+    if (!film.filmSourceID) return film;
     const detailPage = await browserContext.newPage();
     try {
-        const detailUrl = `https://www.cinema.com.hk/tc/movie/details/${film.film_source_id}`;
+        const detailUrl = `https://www.cinema.com.hk/tc/movie/details/${film.filmSourceID}`;
         await detailPage.goto(detailUrl, {
             waitUntil: "domcontentloaded",
             timeout: 60000,
@@ -89,40 +89,40 @@ const processDetail = async (
             .waitForSelector("#content", { timeout: 60000 })
             .catch(() => {
                 console.log(
-                    `source broadway 无法找到电影详情元素: ${film.film_source_id},语言是粤语`
+                    `source broadway 无法找到电影详情元素: ${film.filmSourceID},语言是粤语`
                 );
             });
-        const details_hk = await detailPage.evaluate(() => {
-            let poster_url_external: string | null | undefined = "";
+        const detailsHK = await detailPage.evaluate(() => {
+            let posterUrlExternal: string | null | undefined = "";
             // 先取懒加载的属性，若没有则尝试正常取
-            poster_url_external = document
+            posterUrlExternal = document
                 .querySelector(".movie-image-container img")
                 ?.getAttribute("data-src");
-            if (!poster_url_external) {
-                poster_url_external = document
+            if (!posterUrlExternal) {
+                posterUrlExternal = document
                     .querySelector(".movie-image-container img")
                     ?.getAttribute("src");
             }
-            const director_hk =
+            const directorHK =
                 document
                     .querySelector(
                         ".movie-info-right-col .movie-director-title"
                     )
                     ?.nextSibling?.textContent?.trim() || "";
-            const cast_hk =
+            const castHK =
                 document
                     .querySelector(
                         ".movie-info-right-col .movie-artist-container table tbody tr td:last-child"
                     )
                     ?.textContent?.trim() || "";
             return {
-                director_hk,
-                cast_hk,
-                poster_url_external,
+                directorHK,
+                castHK,
+                posterUrlExternal,
             };
         });
         await detailPage.goto(
-            `https://www.cinema.com.hk/en/movie/details/${film.film_source_id}`,
+            `https://www.cinema.com.hk/en/movie/details/${film.filmSourceID}`,
             {
                 waitUntil: "domcontentloaded",
                 timeout: 60000,
@@ -132,28 +132,28 @@ const processDetail = async (
             .waitForSelector("#content", { timeout: 60000 })
             .catch(() => {
                 console.log(
-                    `source broadway 无法找到电影详情元素: ${film.film_source_id},语言是英语`
+                    `source broadway 无法找到电影详情元素: ${film.filmSourceID},语言是英语`
                 );
             });
-        const name_en =
+        const nameEN =
             (await detailPage
                 .locator(".movie-info-right-col .movie-header")
                 .textContent()) || "";
-        const director_en = await detailPage
+        const directorEN = await detailPage
             .locator(".movie-info-right-col .movie-director-title")
             .evaluate((ele: any) => {
                 return ele?.nextSibling?.textContent?.trim() || "";
             });
-        const cast_en =
+        const castEN =
             (await detailPage
                 .locator(
                     ".movie-info-right-col .movie-artist-container table tbody tr td:last-child"
                 )
                 .textContent()) || "";
-        return { ...film, ...details_hk, name_en, cast_en, director_en };
+        return { ...film, ...detailsHK, nameEN, castEN, directorEN };
     } catch (error) {
         console.log(
-            `source broadway 抓取电影详情页出错: ${film.name_hk}`,
+            `source broadway 抓取电影详情页出错: ${film.nameHK}`,
             error
         );
     } finally {
@@ -169,7 +169,7 @@ const scrapeBaseContent = async (page: Page) => {
         .evaluateAll((eles) => {
             const baseData = eles.map((ele) => {
                 // 获取电影名称
-                const name_hk =
+                const nameHK =
                     ele
                         .querySelector(
                             ".movie-detail-upper-container .movie-name a"
@@ -177,7 +177,7 @@ const scrapeBaseContent = async (page: Page) => {
                         ?.textContent?.trim() || "";
 
                 // 获取二级信息
-                const on_screen_date =
+                const onScreenDate =
                     ele
                         .querySelector(".movie-opening-day")
                         ?.textContent?.replace(/\n/g, "")
@@ -192,7 +192,7 @@ const scrapeBaseContent = async (page: Page) => {
                 const cinemaRows = ele.querySelectorAll(".cinema-row");
                 const scheduleByCinemaArr = Array.from(cinemaRows).map(
                     (row) => {
-                        const cinema_name =
+                        const cinemaName =
                             row
                                 .querySelector(".cinema-name a")
                                 ?.textContent?.trim() || "";
@@ -237,20 +237,20 @@ const scrapeBaseContent = async (page: Page) => {
                             };
                         });
                         return {
-                            cinema_name,
+                            cinemaName,
                             schedules: scheduleArray,
                         };
                     }
                 );
 
                 return {
-                    name_hk,
-                    on_screen_date,
+                    nameHK,
+                    onScreenDate,
                     duration,
                     language: language?.replace(/\n/g, "").trim(),
-                    film_source_id: Number(ele.id) || 0,
+                    filmSourceID: Number(ele.id) || 0,
                     scheduleByCinemaArr,
-                    poster_url_internal: "",
+                    posterUrlInternal: "",
                     source: 0,
                 };
             });
@@ -280,7 +280,7 @@ const scrapeDetails = async (page: Page, data: any[]) => {
                 result.push(res.value);
             } else {
                 console.error(
-                    `source: broadway 获取电影详情失败: ${batch[index].film_source_id}`,
+                    `source: broadway 获取电影详情失败: ${batch[index].filmSourceID}`,
                     res.reason
                 );
                 result.push(batch[index]); // 保留基本数据

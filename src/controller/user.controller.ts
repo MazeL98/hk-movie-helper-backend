@@ -25,10 +25,10 @@ export const getUser = async (query:UserQuery) => {
 export const createUser = async(data:User)=>{
      const saltRounds = 10;
       const {username,email,password} = data
-  const password_hash = await bcrypt.hash(password, saltRounds);
+  const passwordHash = await bcrypt.hash(password, saltRounds);
  
   const res =  await userService.createUser({
-    username,email,password_hash
+    username,email,passwordHash
   })
 
   return res;

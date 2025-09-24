@@ -6,7 +6,7 @@ export const getFilmAlias = async (rawName: string, source: number) => {
         return;
     }
     const result = await filmAliasService.getFilmAlias({
-        raw_name: rawName,
+        rawName: rawName,
         source: Number(source),
     });
     return result;

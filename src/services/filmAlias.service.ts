@@ -7,7 +7,7 @@ class FilmAliasService {
     async addFilmAlias(data: FilmAlias) {
         const target = await FilmAliasModel.findOne({
             where: {
-                raw_name: data.raw_name,
+                rawName: data.rawName,
                 source: data.source,
             },
         });

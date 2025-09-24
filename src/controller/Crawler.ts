@@ -93,12 +93,12 @@ class Crawler {
 
     private async _filterAndSaveSchedule(
         data: ScheduleByCinema[],
-        targetId: bigint,
+        targetID: bigint,
         source: FILM_SOURCE
     ) {
-        if (!data || !Array.isArray(data) || !targetId) return;
+        if (!data || !Array.isArray(data) || !targetID) return;
         for (const cinemaItem of data) {
-            const { cinema_name } = cinemaItem;
+            const { cinemaName } = cinemaItem;
             for (const schedule of cinemaItem.schedules) {
                 let { date, time, attr, house } = schedule;
                 if (!date || !time) continue;
@@ -106,8 +106,8 @@ class Crawler {
                 time = parseScheduleTime(time, source);
                 try {
                     await scheduleService.addSchedule({
-                        film_id: targetId,
-                        cinema_name,
+                        filmID: targetID,
+                        cinemaName,
                         date,
                         time,
                         house,
@@ -137,14 +137,14 @@ class Crawler {
 
                 const { scheduleByCinemaArr, ...baseInfo } = item;
                 let searchRes = await filmService.fuzzySearchByName(
-                    baseInfo.name_hk
+                    baseInfo.nameHK
                 );
 
                 if (!searchRes || !searchRes.id) {
                   console.log("找不到该条目，准备添加")
                     const addRes = await filmService.addFilmData(baseInfo);
                     if (!addRes || !addRes.id) {
-                      console.log(baseInfo.name_hk,"添加条目失败")
+                      console.log(baseInfo.nameHK,"添加条目失败")
                         failed++;
                         continue;
                     }
@@ -153,8 +153,8 @@ class Crawler {
 
                 newData.push({
                     id: searchRes.id,
-                    name_hk: item.name_hk,
-                    poster_url_external: item.poster_url_external,
+                    nameHK: item.nameHK,
+                    posterUrlExternal: item.posterUrlExternal,
                 });
 
                 // 添加排片
@@ -169,7 +169,7 @@ class Crawler {
                 failed++;
                 // 详细记录错误
                 reasons.push({
-                    name: item.name_hk,
+                    name: item.nameHK,
                     error: error.message,
                 });
             }
@@ -188,7 +188,7 @@ class Crawler {
     }
 
     private async _uploadPoster(
-        data: { name_hk: string; poster_url_external?: string }[]
+        data: { nameHK: string; posterUrlExternal?: string }[]
     ) {
         // 将静态资源上传到七牛云生成新path
         // 保存当前的代理设置
@@ -211,10 +211,10 @@ class Crawler {
             await Promise.allSettled(
                 data.map(async (item) => {
                     // 将海报图片存为静态资源
-                    if (item.poster_url_external) {
+                    if (item.posterUrlExternal) {
                         try {
                             const resData = await qiniuUpload({
-                                url: item.poster_url_external,
+                                url: item.posterUrlExternal,
                                 bucket: QI_NIU.buckets.cineplan.bucket_name,
                                 ext: ".jpg",
                                 access_key: QI_NIU.keys.ACCESS_KEY,
@@ -225,8 +225,8 @@ class Crawler {
                                 // 数据库中更新url属性
                                 try {
                                     await filmService.updateFilmData({
-                                        name_hk: item.name_hk,
-                                        poster_url_internal:
+                                        nameHK: item.nameHK,
+                                        posterUrlInternal:
                                             QI_NIU.buckets.cineplan.domain +
                                             "/" +
                                             resData.data,
@@ -235,7 +235,7 @@ class Crawler {
                                 } catch (error) {
                                     failed++;
                                     console.error(
-                                        `图片入库失败: ${item.name_hk} ${error}`
+                                        `图片入库失败: ${item.nameHK} ${error}`
                                     );
                                 }
 
@@ -244,7 +244,7 @@ class Crawler {
                         } catch (error) {
                             failed++;
                             console.error(
-                                `上传图片失败: ${item.name_hk} ${error}`
+                                `上传图片失败: ${item.nameHK} ${error}`
                             );
                             return null;
                         }

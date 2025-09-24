@@ -17,8 +17,8 @@ class Event extends Model<
     InferCreationAttributes<Event>
 > {
     declare id?: CreationOptional<number>;
-    declare user_id: bigint;
-    declare schedule_id: number;
+    declare userID: bigint;
+    declare scheduleID: number;
     declare note?: string;
 }
 
@@ -31,15 +31,17 @@ Event.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        user_id:{
+        userID:{
           type:BIGINT,
           comment: "用户ID",
-          allowNull:false
+          allowNull:false,
+          field:"user_id"
         },
-        schedule_id:{
+        scheduleID:{
           type:BIGINT,
           comment: "排片表ID",
-          allowNull:false
+          allowNull:false,
+          field:"schedule_id"
         },
         note:{
           type:STRING,

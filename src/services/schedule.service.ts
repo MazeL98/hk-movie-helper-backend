@@ -8,15 +8,15 @@ class ScheduleService {
     async queryCinemaId(data: Schedule) {
         // 爬虫数据没有添加cinema_id，只爬取了cinema_name，需要跨表查询
         const cinemaRes = await cinemaService.getCinemaByFuzzyQuery(
-            { name_hk: data.cinema_name },
+            { name_hk: data.cinemaName },
             ["id"]
         );
         if (cinemaRes && cinemaRes.id) {
-            data.cinema_id = cinemaRes.id;
-            console.log(`添加了${data.cinema_name}的id`);
+            data.cinemaID = cinemaRes.id;
+            console.log(`添加了${data.cinemaName}的id`);
         } else {
             console.log(
-                `没有在数据库找到${data.cinema_name}的id，添加字段失败`
+                `没有在数据库找到${data.cinemaName}的id，添加字段失败`
             );
         }
     }
@@ -24,19 +24,19 @@ class ScheduleService {
     async addSchedule(data: Schedule) {
         const target = await ScheduleModel.findOne({
             where: {
-                film_id: data.film_id,
+                filmID: data.filmID,
                 date: data.date,
                 time: data.time,
                 attr: data.attr,
-                cinema_name: data.cinema_name,
+                cinemaName: data.cinemaName,
             },
         });
-        if (!data.cinema_id) {
+        if (!data.cinemaID) {
             await this.queryCinemaId(data);
         }
         if (!target) {
             await ScheduleModel.create(data);
-            console.log("添加排片成功", data.film_id);
+            console.log("添加排片成功", data.filmID);
         } else {
             console.log("找到相似的排片结果");
             try {

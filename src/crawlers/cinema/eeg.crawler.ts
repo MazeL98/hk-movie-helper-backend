@@ -19,7 +19,7 @@ const scrapeInfoUrls = async (page: Page) => {
     return urls;
 };
 
-const extractDirectorAndCast = async (page: Page, lang = "hk") => {
+const extractDirectorAndCast = async (page: Page, lang = "HK") => {
     const data = await page.evaluate((lang) => {
         let director = "",
             cast = "";
@@ -39,8 +39,8 @@ const extractDirectorAndCast = async (page: Page, lang = "hk") => {
             }
         }
         return {
-            ["director_" + lang]: director,
-            ["cast_" + lang]: cast,
+            ["director" + lang]: director,
+            ["cast" + lang]: cast,
         };
     }, lang);
     return data;
@@ -62,14 +62,14 @@ const processInfo = async (browserContext: any, url: string) => {
 
         // 获取电影名称，时长，语言
         const baseInfo = await detailPage.evaluate(() => {
-            const poster_url_external = (
+            const posterUrlExternal = (
                 document.querySelector(".movie-bg") as HTMLElement
             )?.style?.backgroundImage;
-            const name_hk = document
+            const nameHK = document
                 .querySelector(".movie-name")
                 ?.textContent?.trim();
             let duration = "",
-                on_screen_date = "",
+                onScreenDate = "",
                 language = "";
 
             const nodeList = document.querySelectorAll(
@@ -84,7 +84,7 @@ const processInfo = async (browserContext: any, url: string) => {
                 if (label?.includes("片長")) {
                     duration = content;
                 } else if (label?.includes("上映日期")) {
-                    on_screen_date = content;
+                    onScreenDate = content;
                 } else if (label?.includes("語言")) {
                     language = content;
                 } else if (label?.includes("字幕")) {
@@ -93,18 +93,18 @@ const processInfo = async (browserContext: any, url: string) => {
             }
 
             return {
-                name_hk,
-                on_screen_date,
+                nameHK,
+                onScreenDate,
                 duration,
-                poster_url_external,
+                posterUrlExternal,
                 language,
                 source: 0,
             };
         });
         // 获取导演和卡司
-        const { director_hk, cast_hk } = await extractDirectorAndCast(
+        const { directorHK, castHK } = await extractDirectorAndCast(
             detailPage,
-            "hk"
+            "HK"
         );
         // 获取排片数据
         const scheduleByCinemaArr = await detailPage.evaluate(() => {
@@ -137,7 +137,7 @@ const processInfo = async (browserContext: any, url: string) => {
                 }
 
                 return {
-                    cinema_name:cinemaName,
+                    cinemaName:cinemaName,
                     schedules,
                 };
             });
@@ -148,22 +148,22 @@ const processInfo = async (browserContext: any, url: string) => {
             waitUntil: "domcontentloaded",
             timeout: 60000,
         });
-        const name_en =
+        const nameEN =
             (await detailPage.locator(".movie-name").textContent()) || "";
-        const { director_en, cast_en } = await extractDirectorAndCast(
+        const { directorEN, castEN } = await extractDirectorAndCast(
             detailPage,
-            "en"
+            "EN"
         );
 
         return {
             ...baseInfo,
-            director_hk,
-            cast_hk,
-            name_en,
-            director_en,
-            cast_en,
-            poster_url_external: extractUrlFromCss(
-                baseInfo.poster_url_external
+            directorHK,
+            castHK,
+            nameEN,
+            directorEN,
+            castEN,
+            posterUrlExternal: extractUrlFromCss(
+                baseInfo.posterUrlExternal
             ),
             scheduleByCinemaArr,
         };

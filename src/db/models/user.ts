@@ -8,7 +8,7 @@ class User extends Model<InferAttributes<User>,InferCreationAttributes<User>> {
   declare id?: bigint
   declare username: string
   declare email: string
-  declare password_hash:string
+  declare passwordHash:string
 }
 
 
@@ -34,10 +34,11 @@ User.init({
     unique: true,
     allowNull: false,
   },
-  password_hash:{
+  passwordHash:{
     comment: '密码',
     type:STRING,
-    allowNull:false
+    allowNull:false,
+    field:"password_hash"
   }
 
 },{

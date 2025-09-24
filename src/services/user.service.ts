@@ -6,7 +6,7 @@ export interface NewUserItem {
   id?:bigint;
   username:string;
   email:string;
-  password_hash:string;
+  passwordHash:string;
 }
 
 

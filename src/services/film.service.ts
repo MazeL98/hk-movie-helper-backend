@@ -43,17 +43,17 @@ const limitStringLength = (str: string, maxLength: number): string => {
 };
 
 const cleanData = (data: FilmItem): FilmItem => {
-    if (data.name_hk) {
-        data.name_hk = normalizeBroadwayFilmName(data.name_hk);
+    if (data.nameHK) {
+        data.nameHK = normalizeBroadwayFilmName(data.nameHK);
     }
-    if (data.name_en) {
-        data.name_en = normalizeBroadwayFilmName(data.name_en);
+    if (data.nameEN) {
+        data.nameEN = normalizeBroadwayFilmName(data.nameEN);
     }
-    if (data.on_screen_date && data.source) {
-        data.on_screen_date = formatDate(data.on_screen_date, data.source);
+    if (data.onScreenDate && data.source) {
+        data.onScreenDate = formatDate(data.onScreenDate, data.source);
     }
-    if (data.cast_simplified) {
-        data.cast_simplified = limitStringLength(data.cast_simplified, 100);
+    if (data.castSimplified) {
+        data.castSimplified = limitStringLength(data.castSimplified, 100);
     }
 
     if (data.duration) {
@@ -67,7 +67,7 @@ const cleanData = (data: FilmItem): FilmItem => {
 
 class FilmService {
     async addFilmData(data: FilmItem): Promise<FilmItem | null> {
-        const target = await this.searchByName(data.name_hk);
+        const target = await this.searchByName(data.nameHK);
         if (target) return null;
 
         try {
@@ -79,12 +79,12 @@ class FilmService {
 
     // 更新电影数据
     async updateFilmData(data: FilmItem) {
-        if (!data.name_hk) {
+        if (!data.nameHK) {
             console.log("updateFilmData Failed: 缺少 name_hk 字段");
             return;
         }
       
-        const old = await this.searchByName(data.name_hk);
+        const old = await this.searchByName(data.nameHK);
 
         if (old && old.id) {
             try {
@@ -120,7 +120,7 @@ class FilmService {
         if (!rawName) return null;
         const formattedName = normalizeBroadwayFilmName(rawName);
         const res = await FilmModel.findOne({where: {
-          name_hk: formattedName
+          nameHK: formattedName
         }});
         return res;
     }

@@ -7,7 +7,7 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 
-const { STRING, BIGINT, INT,DATE } = DataTypes;
+const { STRING, BIGINT, INT, DATE } = DataTypes;
 
 class Schedule extends Model<
     InferAttributes<Schedule>,
@@ -15,9 +15,9 @@ class Schedule extends Model<
 > {
     declare id?: CreationOptional<bigint>;
 
-    declare film_id: bigint;
-    declare cinema_id?: number;
-    declare cinema_name: string;
+    declare filmID: bigint;
+    declare cinemaID?: number;
+    declare cinemaName: string;
     declare date: string;
     declare time: string;
     declare house?: string;
@@ -29,21 +29,24 @@ Schedule.init(
         id: {
             comment: "schedule id",
             type: BIGINT,
-            allowNull:false,
+            allowNull: false,
             unique: true,
             primaryKey: true,
             autoIncrement: true,
         },
-        film_id:{
-          comment: "对应的电影在本平台的id",
-          type: BIGINT,
-          allowNull:true
+        filmID: {
+            comment: "对应的电影在本平台的id",
+            type: BIGINT,
+            allowNull: true,
+            field: "film_id",
         },
-        cinema_id: {
+        cinemaID: {
             type: INT,
+            field: "cinema_id",
         },
-        cinema_name: {
+        cinemaName: {
             type: STRING,
+            field: "cinema_name",
         },
         date: {
             type: STRING,
@@ -61,7 +64,7 @@ Schedule.init(
     {
         sequelize: seq,
         tableName: "schedule",
-                defaultScope: {
+        defaultScope: {
             attributes: {
                 exclude: ["createdAt", "updatedAt", "status"],
             },

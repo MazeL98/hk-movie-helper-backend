@@ -14,8 +14,8 @@ class FilmAlias extends Model<
     InferCreationAttributes<FilmAlias>
 > {
     declare id?: CreationOptional<number>;
-    declare standard_id?: number;
-    declare raw_name?: string;
+    declare standardID?: number;
+    declare rawName?: string;
     declare status?: number;
     declare source?: number;
 }
@@ -29,16 +29,18 @@ FilmAlias.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        standard_id: {
+        standardID: {
             comment: "在标准表film中的id",
             type: INT,
             allowNull: false,
             unique: false,
+            field: "standard_id",
         },
-        raw_name: {
+        rawName: {
             comment: "在源网站上的名称",
             type: STRING,
             unique: "raw_source_unique", //// 给组合约束取个名字
+            field: "raw_name",
         },
 
         source: {

@@ -7,22 +7,22 @@ import {
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
 import { staticCinemas } from "./staticCinemas";
-const { STRING, INT, } = DataTypes;
+const { STRING, INT } = DataTypes;
 
 class Cinema extends Model<
     InferAttributes<Cinema>,
     InferCreationAttributes<Cinema>
 > {
     declare id: CreationOptional<number>;
-    declare name_hk: string;
-    declare name_simplified: string;
-    declare name_en: string;
-    declare district_id: number;
-    declare district_name: string;
-    declare theater_id: number;
-    declare theater_name: string;
-    declare address_hk: string;
-    declare address_en: string;
+    declare nameHK: string;
+    declare nameSimplified: string;
+    declare nameEN: string;
+    declare districtID: number;
+    declare districtName: string;
+    declare theaterID: number;
+    declare theaterName: string;
+    declare addressHK: string;
+    declare addressEN: string;
     declare logo?: string;
 }
 
@@ -35,43 +35,52 @@ Cinema.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        name_hk: {
+        nameHK: {
             comment: "戏院名称",
             type: STRING,
             allowNull: false,
             unique: true,
+            field: "name_hk",
         },
-        name_simplified: {
+        nameSimplified: {
             type: STRING,
+            field: "name_simplified",
         },
-        name_en: {
+        nameEN: {
             type: STRING,
+            field: "name_en",
         },
-        district_id: {
+        districtID: {
             comment: "地区编号",
             type: INT,
             allowNull: true,
+            field: "district_id",
         },
-        district_name: {
+        districtName: {
             comment: "地区名称",
             type: STRING,
             allowNull: true,
+            field: "district_name",
         },
-        theater_id: {
+        theaterID: {
             comment: "院线编号",
             type: INT,
             allowNull: true,
+            field: "theater_id",
         },
-        theater_name: {
+        theaterName: {
             comment: "院线名称",
             type: STRING,
             allowNull: true,
+            field: "theater_name",
         },
-        address_hk: {
+        addressHK: {
             type: STRING,
+            field: "address_hk",
         },
-        address_en: {
+        addressEN: {
             type: STRING,
+            field: "address_en",
         },
         logo: {
             type: STRING,
@@ -94,13 +103,13 @@ export default Cinema;
 export const addStaticCinemas = async () => {
     for (const cinema of staticCinemas) {
         const [record, created] = await Cinema.findOrCreate({
-            where: { name_hk: cinema.name_hk },
+            where: { nameHK: cinema.nameHK },
             defaults: cinema,
         });
         if (created) {
-            console.log(`插入新戏院: ${cinema.name_hk}`);
+            console.log(`插入新戏院: ${cinema.nameHK}`);
         } else {
-            console.log(`跳过，数据已存在: ${cinema.name_hk}`);
+            console.log(`跳过，数据已存在: ${cinema.nameHK}`);
         }
     }
 };

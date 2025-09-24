@@ -6,37 +6,37 @@ import { FilmItem } from "../../types/film";
 import { Director } from "../../types/director";
 import { formatNameForIMDBQuery } from "../../libs/format";
 type IMDBFilmItem = {
-    director_imdb_id?: string[] | null;
+    directorImdbID?: string[] | null;
 } & FilmItem;
 
 const getFilmsWidthDirectorId = async () => {
     const allFilms = await filmService.getFilms({}, [
-        "film_source_id",
+        "filmSourceID",
         "source",
-        "name_en",
-        "name_hk",
-        "director_en",
+        "nameEN",
+        "nameHK",
+        "directorEN",
     ]);
     if (allFilms && allFilms.length) {
         let result: IMDBFilmItem[] = [];
         for (let film of allFilms) {
-            if (!film.director_en) continue;
+            if (!film.directorEN) continue;
             // director可能有多个
             const directorIds: string[] = [];
-            for (const directorName of film.director_en.split(",")) {
+            for (const directorName of film.directorEN.split(",")) {
                 console.log("从数据库查询", directorName);
                 const director: Director | null =
                     await directorService.getDirector({
-                        name_en: directorName,
+                        nameEN: directorName,
                     });
-                director && directorIds.push(director.id_imdb as string);
+                director && directorIds.push(director.idImdb as string);
             }
 
             result.push({
                 ...film,
-                director_imdb_id: directorIds.length ? directorIds : [],
+                directorImdbID: directorIds.length ? directorIds : [],
             });
-            // console.log(film.name_en, "数据库查询导演结果", directorIds);
+            // console.log(film.nameEN, "数据库查询导演结果", directorIds);
         }
 
         return result;
@@ -47,14 +47,14 @@ const getFilmsWidthDirectorId = async () => {
 
 const crawlAndGetDirector = async (page: Page, film: IMDBFilmItem) => {
     let result = [];
-    if (!film.director_en) return null;
-    const directorNames = film.director_en.split(",");
+    if (!film.directorEN) return null;
+    const directorNames = film.directorEN.split(",");
 
     async function crawlDirectorId(name: string) {
         if (!name) return null;
         const formattedName = name.replace(/ /g, "%20");
         const searchUrl = `https://www.imdb.com/search/name/?name=${formattedName}`;
-        // 根据导演名去 imdb 搜索，获取 imdb_id
+        // 根据导演名去 imdb 搜索，获取 imdbID
         await page
             .goto(searchUrl, { waitUntil: "networkidle", timeout: 20000 })
             .catch(() => {
@@ -67,7 +67,7 @@ const crawlAndGetDirector = async (page: Page, film: IMDBFilmItem) => {
                 console.log(`搜索导演未找到结果,searchUrl:${searchUrl}`);
                 return null;
             });
-        const director_imdb_id = await page.evaluate(() => {
+        const directorImdbID = await page.evaluate(() => {
             const idMatch = document
                 .querySelector(
                     "ul.ipc-metadata-list li:first-child .ipc-avatar a"
@@ -78,17 +78,17 @@ const crawlAndGetDirector = async (page: Page, film: IMDBFilmItem) => {
         });
 
         // 将导演爬虫数据存入数据库
-        if (director_imdb_id) {
+        if (directorImdbID) {
             await directorService
                 .addDirector({
-                    id_imdb: director_imdb_id,
-                    name_en: name,
+                    idImdb: directorImdbID,
+                    nameEN: name,
                 })
                 .catch((error) => {
                     console.log(`新增导演数据失败,${error}`);
                 });
         }
-        return director_imdb_id;
+        return directorImdbID;
     }
 
     for (const name of directorNames) {
@@ -102,10 +102,10 @@ const crawlFilmDetail = async (
     page: Page,
     film: IMDBFilmItem
 ): Promise<IMDBFilmItem | null> => {
-    if (!film.name_en) return null;
-    console.log(`开始在imdb查询电影${film.name_en}`);
+    if (!film.nameEN) return null;
+    console.log(`开始在imdb查询电影${film.nameEN}`);
 
-    const filmName = formatNameForIMDBQuery(film.name_en);
+    const filmName = formatNameForIMDBQuery(film.nameEN);
     const searchUrl = `https://www.imdb.com/search/title/?title=${filmName}&title_type=feature,short`;
 
     const gotoRes = await page
@@ -125,11 +125,11 @@ const crawlFilmDetail = async (
         return null;
     }
 
-    const directorIds = film.director_imdb_id;
+    const directorIds = film.directorImdbID;
 
     // 如果没有导演ID，默认第一个搜索结果
     if (!directorIds || !directorIds.length) {
-        console.log(film.name_en, "导演ID一个也妹有，默认取第一个结果");
+        console.log(film.nameEN, "导演ID一个也妹有，默认取第一个结果");
         await page.evaluate(() => {
             const detailButton = document.querySelector(
                 "ul.ipc-metadata-list li:first-child button.li-info-icon"
@@ -200,7 +200,7 @@ const crawlFilmDetail = async (
     // TODO: 有没有更简洁的获取数据方式
     const details: any = await page.evaluate(() => {
         //获取IMDB评分
-        const film_imdb_rating =
+        const filmImdbRating =
             document.querySelector(".ipc-promptable-base__content .ipc-rating-star--rating")?.textContent ||
             "";
 
@@ -208,18 +208,18 @@ const crawlFilmDetail = async (
         const genreEles = document.querySelectorAll(
             ".ipc-promptable-base__content ul[data-testid='btp_gl'] li"
         );
-        let film_genres = "";
+        let filmGenres = "";
         Array.from(genreEles).forEach((ele) => {
-            film_genres = film_genres + ele?.textContent + ",";
+            filmGenres = filmGenres + ele?.textContent + ",";
         });
 
         return {
-            rating_imdb: Number(film_imdb_rating),
-            genres: film_genres,
+            ratingImdb: Number(filmImdbRating),
+            genres: filmGenres,
         };
     });
 
-    const film_imdb_id = await page.evaluate(() => {
+    const filmImdbID = await page.evaluate(() => {
         const idMatch = document
             .querySelector(".ipc-promptable-base__content .ipc-poster a")
             ?.getAttribute("href")
@@ -227,20 +227,20 @@ const crawlFilmDetail = async (
         return idMatch ? idMatch[1] : "";
     });
 
-    const noNewData = !film_imdb_id && !details.rating_imdb && !details.genres;
+    const noNewData = !filmImdbID && !details.ratingImdb && !details.genres;
     if (noNewData) {
         return null;
     }
     console.log(
-        `电影${film.name_hk}抓取新数据,${details.rating_imdb},${details.genres}`
+        `电影${film.nameHK}抓取新数据,${details.ratingImdb},${details.genres}`
     );
-    const newObj = { ...film, ...details, imdb_id: film_imdb_id };
-    delete newObj.director_imdb_id;
+    const newObj = { ...film, ...details, imdbID: filmImdbID };
+    delete newObj.directorImdbID;
     return newObj;
 };
 
 const imdbHandler = async (page: Page): Promise<FilmItem[]> => {
-    // 遍历电影列表，去数据库查询导演名是否有存储imdb_id，若有，直接返回，若无，进入导演爬虫
+    // 遍历电影列表，去数据库查询导演名是否有存储imdbID，若有，直接返回，若无，进入导演爬虫
     let films: IMDBFilmItem[] = await getFilmsWidthDirectorId();
     if (!films || !films.length) return [];
     console.log("获取到了电影列表", films.length);
@@ -248,10 +248,10 @@ const imdbHandler = async (page: Page): Promise<FilmItem[]> => {
 
     for (let film of films) {
         // 没找到导演id，进入导演爬虫
-        if (!film.director_imdb_id || !film.director_imdb_id.length) {
-            film.director_imdb_id = await crawlAndGetDirector(page, film);
+        if (!film.directorImdbID || !film.directorImdbID.length) {
+            film.directorImdbID = await crawlAndGetDirector(page, film);
             console.log(
-                `给电影${film.name_hk}添加了导演imdb_id:${film.director_imdb_id}`
+                `给电影${film.nameHK}添加了导演imdbID:${film.directorImdbID}`
             );
         }
 

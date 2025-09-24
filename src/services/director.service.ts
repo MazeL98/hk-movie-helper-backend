@@ -7,12 +7,12 @@ class DirectorService {
   async addDirector(data: Director) {
     const target = await DirectorModel.findOne({
       where: {
-          id_imdb: data.id_imdb,
+          idImdb: data.idImdb,
       },
   });
   if(target) {
     await DirectorModel.update(data,{
-      where: { id_imdb:data.id_imdb }
+      where: { idImdb:data.idImdb }
     })
   } else {
     await DirectorModel.create(data)

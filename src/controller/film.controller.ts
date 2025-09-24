@@ -7,15 +7,15 @@ export const getFilmList = async (pageNo: number, pageSize: number,searchVal?:st
         );
     let result = await filmService.getPaginatedFilms(pageNo, pageSize, searchVal,[
         "id",
-        "name_hk",
-        "name_simplified",
-        "name_en",
-        "director_hk",
-        "director_simplified",
-        "director_en",
-        "rating_douban",
-        "rating_imdb",
-        "poster_url_internal",
+        "nameHK",
+        "nameSimplified",
+        "nameEN",
+        "directorHK",
+        "directorSimplified",
+        "directorEN",
+        "ratingDouban",
+        "ratingImdb",
+        "posterUrlInternal",
     ]);
 
     return result;

@@ -7,14 +7,14 @@ const mergeArrays = (array1: Array<any>, array2: Array<any>) => {
     const map = new Map();
 
     // Add all objects from array1 to the map
-    array1.forEach((item: any) => map.set(item.film_source_id, { ...item }));
+    array1.forEach((item: any) => map.set(item.filmSourceID, { ...item }));
 
     // Update or add objects from array2
     array2.forEach((item: any) => {
-        if (map.has(item.film_source_id)) {
-            Object.assign(map.get(item.film_source_id), item); // Merge properties
+        if (map.has(item.filmSourceID)) {
+            Object.assign(map.get(item.filmSourceID), item); // Merge properties
         } else {
-            map.set(item.film_source_id, { ...item }); // Add new object
+            map.set(item.filmSourceID, { ...item }); // Add new object
         }
     });
 
@@ -94,22 +94,22 @@ const getBaseInfoHK = async (page: Page): Promise<FilmItem[]> => {
             const source_id =
                 container.getAttribute("href")?.split("?fid=")[1] || 0;
             // 获取海报图片和电影名称
-            const poster_url_external =
+            const posterUrlExternal =
                 container.querySelector(".box .img img")?.getAttribute("src") ||
                 "";
 
-            const name_hk = getNameText(container);
-            const director_hk = getDirectorText(container);
+            const nameHK = getNameText(container);
+            const directorHK = getDirectorText(container);
 
             return {
-                film_source_id: Number(source_id) || 0,
-                name_hk,
-                poster_url_external,
-                on_screen_date: "",
+                filmSourceID: Number(source_id) || 0,
+                nameHK,
+                posterUrlExternal,
+                onScreenDate: "",
                 duration: "",
                 language: "",
-                poster_url_internal: "",
-                director_hk,
+                posterUrlInternal: "",
+                directorHK,
                 source: 0
             };
         });
@@ -138,12 +138,12 @@ const getBaseInfoEN = async (page: Page) => {
             // 截取ID
             const source_id =
                 container.getAttribute("href")?.split("?fid=")[1] || 0;
-            const name_en = getNameText(container);
-            const director_en = getDirectorText(container);
+            const nameEN = getNameText(container);
+            const directorEN = getDirectorText(container);
             return {
-                film_source_id: Number(source_id) || 0,
-                name_en,
-                director_en,
+                filmSourceID: Number(source_id) || 0,
+                nameEN,
+                directorEN,
             };
         });
     });
@@ -152,18 +152,18 @@ const getBaseInfoEN = async (page: Page) => {
 
 // 从详情里获取更多信息
 const processDetail = async (browserContext: any, film: FilmItem,lang: 'hk' | 'en') => {
-  if(!film.film_source_id) return film;
+  if(!film.filmSourceID) return film;
     // 创建新页面而非复用主页面
     const detailPage = await browserContext.newPage();
     try {
-      const detailUrl = `https://www.hkiff.org.hk/film/getdetail?fid=${film.film_source_id}`;
+      const detailUrl = `https://www.hkiff.org.hk/film/getdetail?fid=${film.filmSourceID}`;
         // 访问详情页
         await detailPage.goto(detailUrl, { 
           waitUntil: 'domcontentloaded',
           timeout: 60000 
         });  
         await detailPage.waitForSelector('main .content', { timeout: 60000 }).catch(() => {
-          console.log(`source hkiff 无法找到电影详情元素: ${film.film_source_id},语言是${lang}`);
+          console.log(`source hkiff 无法找到电影详情元素: ${film.filmSourceID},语言是${lang}`);
         });
         const details= await detailPage.evaluate((lang: 'hk' | 'en') =>{
 
@@ -200,20 +200,20 @@ const processDetail = async (browserContext: any, film: FilmItem,lang: 'hk' | 'e
             const rawString = document.querySelector('main .leftPart .intro p:first-child')?.textContent?.trim() || '';
             const {duration,language} = matchString(rawString)
   
-            const director_hk = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
-            const cast_hk = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
+            const directorHK = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
+            const castHK = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
             return {
-              director_hk,
-              cast_hk,
+              directorHK,
+              castHK,
               duration,
               language
             }
           } else {
-            const director_en = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
-            const cast_en =document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
+            const directorEN = document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
+            const castEN =document.querySelector('main .leftPart .flex-row div:first-child p:last-child')?.textContent?.trim() || '';
             return {
-              director_en,
-              cast_en
+              directorEN,
+              castEN
             }
           }
 
@@ -222,7 +222,7 @@ const processDetail = async (browserContext: any, film: FilmItem,lang: 'hk' | 'e
         return {...film,...details}
     
     } catch (error) {
-      console.error(`source hkiff 抓取电影详情页出错: ${film.film_source_id},语言是${lang}`, JSON.stringify(error));
+      console.error(`source hkiff 抓取电影详情页出错: ${film.filmSourceID},语言是${lang}`, JSON.stringify(error));
       } finally{
         await detailPage.close().catch(() => {}); // 确保关闭页面
       }
@@ -243,7 +243,7 @@ const scrapeDetails = async (page: Page, data: any[],lang: 'en' | 'hk') => {
       if (res.status === 'fulfilled') {
         result.push(res.value);
       } else {
-        console.error(`source: hkiff 获取电影详情失败: ${batch[index].film_source_id},语言是${lang}`, res.reason);
+        console.error(`source: hkiff 获取电影详情失败: ${batch[index].filmSourceID},语言是${lang}`, res.reason);
         result.push(batch[index]); // 保留基本数据
       }
     });
@@ -269,9 +269,9 @@ const scrapeData = async (page: Page): Promise<FilmItem[]> => {
 
     await clickAndLoad(page);
 
-    let info_hk = await getBaseInfoHK(page);
+    let infoHK = await getBaseInfoHK(page);
     // 获取详情
-    info_hk = await scrapeDetails(page,info_hk,'hk')
+    infoHK = await scrapeDetails(page,infoHK,'hk')
 
     // 切换语言
     await page.evaluate(() => {
@@ -285,10 +285,10 @@ const scrapeData = async (page: Page): Promise<FilmItem[]> => {
 
     // 获取英文内容
     await clickAndLoad(page);
-    let info_en = await getBaseInfoEN(page);
+    let infoEN = await getBaseInfoEN(page);
     // 获取详情
-    info_en = await scrapeDetails(page,info_en,'en');
-    const mergedInfo = mergeArrays(info_hk, info_en);
+    infoEN = await scrapeDetails(page,infoEN,'en');
+    const mergedInfo = mergeArrays(infoHK, infoEN);
     
     return mergedInfo
 };
