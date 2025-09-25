@@ -19,7 +19,7 @@ scheduleRouter.get("/list", async (ctx: any, next: any) => {
       ctx.body= null
       return;
     }
-    console.log("解析query",JSON.stringify(parsedQuery.data))
+    console.log("解析query",parsedQuery.data)
     const result = await getScheduleList(parsedQuery.data);
     ctx.body = result;
 });

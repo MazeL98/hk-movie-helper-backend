@@ -19,7 +19,7 @@ class TheaterService {
       // console.log("查询结果",res)
       return res ? res.toJSON() : null;
     } catch(error) {
-      console.error("从数据库获取院线数据时发生错误", JSON.stringify(error));
+      console.error("从数据库获取院线数据时发生错误", error);
       return null;
     }
   } 
@@ -35,7 +35,7 @@ class TheaterService {
       const res = await TheaterModel.findAll(filterOptions);
       return res.map((item) => item.toJSON()) || [];
     } catch(error) {
-      console.error("从数据库获取院线数据时发生错误", JSON.stringify(error));
+      console.error("从数据库获取院线数据时发生错误", error);
       return [];
     }
   } 

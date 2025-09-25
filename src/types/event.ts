@@ -10,7 +10,7 @@ export const eventListQuerySchema = z.object({
 export type eventListQuery = z.infer<typeof eventListQuerySchema>
 
 export const eventAddSchema = z.object({
-  userId:z.bigint(),
-
-
+  userID:z.bigint(),
+  scheduleID:z.bigint(),
+  note:z.string().optional()
 })

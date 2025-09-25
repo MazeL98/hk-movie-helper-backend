@@ -1,5 +1,6 @@
 import { Op, InferAttributes } from "sequelize";
 import ScheduleModel from "../db/models/schedule";
+import EventModel from "../db/models/event";
 import cinemaService from "./cinema.service";
 
 type Schedule = InferAttributes<ScheduleModel>;
@@ -7,17 +8,12 @@ type Schedule = InferAttributes<ScheduleModel>;
 class ScheduleService {
     async queryCinemaId(data: Schedule) {
         // 爬虫数据没有添加cinema_id，只爬取了cinema_name，需要跨表查询
-        const cinemaRes = await cinemaService.getCinemaByFuzzyQuery(
-            { name_hk: data.cinemaName },
-            ["id"]
-        );
+        const cinemaRes = await cinemaService.queryCinemaID(data.cinemaName);
         if (cinemaRes && cinemaRes.id) {
             data.cinemaID = cinemaRes.id;
             console.log(`添加了${data.cinemaName}的id`);
         } else {
-            console.log(
-                `没有在数据库找到${data.cinemaName}的id，添加字段失败`
-            );
+            console.log(`没有在数据库找到${data.cinemaName}的id，添加字段失败`);
         }
     }
 
@@ -35,8 +31,20 @@ class ScheduleService {
             await this.queryCinemaId(data);
         }
         if (!target) {
-            await ScheduleModel.create(data);
+          try {
+            console.log("添加排片前最后检查数据",data)
+            const res = await ScheduleModel.create(data);
+            console.log("添加排片结果",res)
             console.log("添加排片成功", data.filmID);
+          } catch (addError) {
+              console.error(
+                    "添加排片时发生错误",
+                    addError
+                );
+                throw addError;
+          }
+            
+            
         } else {
             console.log("找到相似的排片结果");
             try {
@@ -50,7 +58,7 @@ class ScheduleService {
             } catch (updateError) {
                 console.error(
                     "更新数据时发生错误",
-                    JSON.stringify(updateError)
+                    updateError
                 );
                 throw updateError;
             }
@@ -72,7 +80,7 @@ class ScheduleService {
         } catch (error) {
             console.error(
                 "从数据库获取排片数据时发生错误",
-                JSON.stringify(error)
+               error
             );
             return null;
         }
@@ -91,7 +99,7 @@ class ScheduleService {
         } catch (error) {
             console.error(
                 "从数据库获取排片数据时发生错误",
-                JSON.stringify(error)
+                error
             );
             return [];
         }
@@ -119,7 +127,36 @@ class ScheduleService {
         } catch (error) {
             console.error(
                 "从数据库按照dateRange获取排片数据时发生错误",
-                JSON.stringify(error)
+                error
+            );
+            return [];
+        }
+    }
+
+    // 根据scheduleID和时间范围联表event-userID查找
+    async getUserSchedulesInRange(
+        userID: bigint,
+        startDate: string,
+        endDate: string
+    ) {
+        try {
+            const res =await ScheduleModel.findAll({
+                include: [
+                    {
+                        model: EventModel,
+                        where: { user_id: userID },
+                        attributes: [],
+                    },
+                ],
+                where: {
+                    date: { [Op.between]: [startDate, endDate] },
+                },
+            });
+             return res.map((item) => item.toJSON()) || [];
+        } catch (err) {
+          console.error(
+                "联表查询用户日程失败",
+                err
             );
             return [];
         }

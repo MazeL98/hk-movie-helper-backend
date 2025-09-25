@@ -6,7 +6,20 @@ import responseFormatter from './middlewares/responseFormatter'
 import cors from "@koa/cors";
 // 获取环境变量
 import  {ENV_CONFIG} from './config/config.default';
+import fs from "fs"
+import util from "util"
 
+
+const logFile = fs.createWriteStream('./app.log', { flags: 'a' });
+const logStdout = process.stdout;
+
+console.log = function (...args: Parameters<typeof console.log>):void {
+  const message = util.format(...args) + '\n';
+  logFile.write(message);   // 写入文件
+  logStdout.write(message); // 保持输出到终端
+};
+
+console.error = console.log; // 也可以单独重写
 
 const app = new Koa();
 app.use(bodyParser());

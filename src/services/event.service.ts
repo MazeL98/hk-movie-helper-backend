@@ -1,31 +1,49 @@
 import { InferAttributes, Op } from "sequelize";
 import EventModel from "../db/models/event";
+import ScheduleModel from "../db/models/schedule"
+import FilmModel from "../db/models/film"
 
 export type Event = InferAttributes<EventModel>;
 
 
+
 class EventService {
-    //按用户按日期区间查询日程
-    async getEventByUserBetween(userID:bigint,startDate:string,endDate:string){
-       const options: any = {};
-            // 构建日期条件
-            if (startDate || endDate) {
-                options.date = {};
-                if (startDate) options.date[Op.gte] = startDate;
-                if (endDate) options.date[Op.lte] = endDate;
-            }
-            if(userID) options.userID = userID
-           try {
-             const res = await EventModel.findAll({
-              where: options
-            })
-            return res.map((item) => item.toJSON()) || [];
-           } catch (error) {
-            console.log("按用户日期区间查询日程失败",JSON.stringify(error))
-            return []
-          }
+    async getUserEventWithTime(
+        userID: bigint,
+        startDate: string,
+        endDate: string
+    ) {
+        try {
+          const events = await EventModel.findAll({
+            where: {userID},
+            include:[
+              {
+                model:ScheduleModel,
+                required:true,
+                where: {
+                  date: { [Op.between]: [startDate, endDate] },
+                },
+                attributes: ['id','cinemaName','date','time','house','attr'],
+                include:[
+                  {
+                    model: FilmModel,
+                    required:true,
+                    attributes: ['id','nameHK','nameEN','nameSimplified','duration']
+                  }
+                ]
+              }
+            ]
+          })
+
+
+            return events.map((item) => item.toJSON()) || [];
+        } catch (error) {
+            console.log("查询用户的日程失败", error);
+            return [];
+        }
     }
-    async getEvent(options?: any) {
+
+    async getEvents(options?: any) {
         try {
             let filterOptions: any = {};
             if (Object.keys(options).length) {
@@ -33,41 +51,38 @@ class EventService {
                     where: { ...options },
                 };
             }
-            const res =await EventModel.findAll(filterOptions);
+            const res = await EventModel.findAll(filterOptions);
             return res.map((item) => item.toJSON()) || [];
         } catch (error) {
-          console.error("查询日程出错",JSON.stringify(error))
-          return []
+            console.error("查询日程出错", error);
+            return [];
         }
     }
     // 为某用户添加日程
     async addEvent(data: Event) {
-        if (!data.userID) {
-            throw new Error("缺少用户ID");
-        } else if (!data.scheduleID) {
-            throw new Error("缺少排片信息");
-        }
-
+      console.log("service:尝试为用户添加日程",typeof data.userID)
         try {
             // TODO: 若和已有日程产生时间冲突，发出警告
-            await EventModel.create(data);
+            const res = await EventModel.create(data);
+            return res.toJSON();
         } catch (addError) {
-            console.log("添加日程失败");
+            console.log("添加日程失败",addError);
             throw addError;
         }
     }
 
     // 删除日程
-    async deleteEvent(eventId: number) {
-        if (!eventId) {
+    async deleteEvent(eventID: bigint) {
+        if (!eventID) {
             throw new Error("缺少event ID");
         }
         try {
-            await EventModel.destroy({
+            const res = await EventModel.destroy({
                 where: {
-                    id: eventId,
+                    id: eventID,
                 },
             });
+            return res;
         } catch (deleteError) {
             console.log("删除日程失败");
             throw deleteError;

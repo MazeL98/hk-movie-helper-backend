@@ -6,7 +6,8 @@ import {
 } from "sequelize";
 import { seq } from "../connection/mysql_connect";
 import DataTypes from "../../config/config.db_type";
-
+import Film from "../models/film";
+import Cinema from "../models/cinema";
 const { STRING, BIGINT, INT, DATE } = DataTypes;
 
 class Schedule extends Model<
@@ -33,16 +34,25 @@ Schedule.init(
             unique: true,
             primaryKey: true,
             autoIncrement: true,
+            get() {
+                const value = this.getDataValue("id");
+                return value ? BigInt(value) : null;
+            },
         },
         filmID: {
             comment: "对应的电影在本平台的id",
             type: BIGINT,
-            allowNull: true,
+            allowNull: false,
             field: "film_id",
+            get() {
+                const value = this.getDataValue("filmID");
+                return value ? BigInt(value) : null;
+            },
         },
         cinemaID: {
             type: INT,
             field: "cinema_id",
+            allowNull: false,
         },
         cinemaName: {
             type: STRING,
@@ -71,5 +81,19 @@ Schedule.init(
         },
     }
 );
+
+Film.hasMany(Schedule, {
+    foreignKey: { name: "filmID", allowNull: false },
+    onDelete: "CASCADE",
+});
+Schedule.belongsTo(Film, { foreignKey: { name: "filmID", allowNull: false } });
+
+Cinema.hasMany(Schedule, {
+    foreignKey: { name: "cinemaID", allowNull: false },
+    onDelete: "CASCADE",
+});
+Schedule.belongsTo(Cinema, {
+    foreignKey: { name: "cinemaID", allowNull: false },
+});
 
 export default Schedule;

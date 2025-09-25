@@ -8,7 +8,7 @@ const scrollAndLoad = async (page: Page) => {
     let prevCount = 0,
         currCount = 0,
         noChangeCounter = 0;
-    const maxTries = 6; // 连续5次滚动无变化则停止尝试
+    const maxTries = 6; // 连续6次滚动无变化则停止尝试
 
     console.log("来源Broadway开始模拟滚动加载...");
 

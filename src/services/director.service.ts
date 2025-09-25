@@ -32,7 +32,7 @@ class DirectorService {
       // console.log("查询结果",res)
       return res ? res.toJSON() : null;
     } catch(error) {
-      console.error("从数据库获取导演数据时发生错误", JSON.stringify(error));
+      console.error("从数据库获取导演数据时发生错误", error);
       return null;
     }
   } 
@@ -48,7 +48,7 @@ class DirectorService {
       const res = await DirectorModel.findAll(filterOptions);
       return res.map((item) => item.toJSON()) || [];
     } catch(error) {
-      console.error("从数据库获取导演数据时发生错误", JSON.stringify(error));
+      console.error("从数据库获取导演数据时发生错误", error);
       return [];
     }
   } 

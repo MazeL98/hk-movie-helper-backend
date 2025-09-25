@@ -21,7 +21,7 @@ class ScheduleListService {
         // 组装cinema info
         const cinemaInfo = await cinemaService.getCinema({ id: cinemaID });
         if (!cinemaInfo) return null;
-        console.log("cinemaInfo", JSON.stringify(cinemaInfo));
+        console.log("cinemaInfo", cinemaInfo);
         result = { ...cinemaInfo, scheduleByFilm: [] };
 
         const rawSchedules = await scheduleService.getSchedules({

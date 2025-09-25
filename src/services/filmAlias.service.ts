@@ -36,7 +36,7 @@ class FilmAliasService {
         } catch (error) {
             console.error(
                 "从数据库获取film_alias数据时发生错误",
-                JSON.stringify(error)
+               error
             );
             return null;
         }

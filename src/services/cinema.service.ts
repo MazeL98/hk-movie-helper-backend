@@ -23,33 +23,25 @@ class CinemaService {
         } catch (error) {
             console.error(
                 "从数据库获取戏院数据时发生错误",
-                JSON.stringify(error)
+                error
             );
             return null;
         }
     }
-    // 模糊查询单条结果
-    async getCinemaByFuzzyQuery(options?: any, attributes?: string[]) {
-        try {
-            let filterOptions: any = {};
-            if (Object.keys(options).length) {
-                filterOptions = {
-                    where: buildFuzzyQuery(options),
-                };
-            }
-            if (attributes?.length) {
-                filterOptions.attributes = [...attributes];
-            }
-            const res = await CinemaModel.findOne(filterOptions);
-            // console.log("查询结果",res)
-            return res ? res.toJSON() : null;
-        } catch (error) {
-            console.error(
-                "从数据库获取戏院数据时发生错误",
-                JSON.stringify(error)
+    // 根据影院名称模糊搜索其ID
+    async queryCinemaID(cinemaName:string) {
+      try {
+        const res = await CinemaModel.findOne({
+        where: buildFuzzyQuery({nameHK:cinemaName})
+      })
+          return res ? res.toJSON() : null;
+      } catch (error) {
+        console.error(
+                "根据影院名称查询ID失败",
+                error
             );
             return null;
-        }
+      }
     }
     // 查询多条结果
     async getCinemas(options?: any, attributes?: string[]) {
@@ -68,7 +60,7 @@ class CinemaService {
         } catch (error) {
             console.error(
                 "从数据库获取戏院数据时发生错误",
-                JSON.stringify(error)
+                error
             );
             return [];
         }
@@ -102,7 +94,7 @@ class CinemaService {
                 pageSize: pageSize,
             };
         } catch (error) {
-            console.error("分页查询戏院时发生错误", JSON.stringify(error));
+            console.error("分页查询戏院时发生错误", error);
             return {
                 data: null,
                 total: 0,

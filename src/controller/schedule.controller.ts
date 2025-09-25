@@ -4,7 +4,7 @@ import { type scheduleListQuery,scheduleValidDatesQuery } from "../types/schedul
 
 export const getScheduleList = async (queries: scheduleListQuery) => {
     let result: any;
-  console.log("查询参数",JSON.stringify(queries))
+  console.log("查询参数",queries)
     if (queries.cinemaID && queries.date) {
         console.log("查询排片类型:影院");
         result = await scheduleListService.getSchedulesByCinema(

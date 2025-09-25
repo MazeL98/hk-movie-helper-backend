@@ -41,9 +41,14 @@ Film.init(
         id: {
             comment: "film id",
             type: BIGINT,
+            allowNull: false,
             unique: true,
             primaryKey: true,
             autoIncrement: true,
+            get() {
+                const value = this.getDataValue("id");
+                return value ? BigInt(value) : null;
+            },
         },
         filmSourceID: {
             comment: "在源网站上的 id",

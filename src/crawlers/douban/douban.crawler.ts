@@ -233,7 +233,7 @@ class DoubanCrawler {
                         timeout: 10000,
                         waitUntil: "domcontentloaded",
                     });
-
+                    await page.waitForTimeout(5000)
                     // 检查是否有按钮验证
                     const isButtonVisible = await page
                         .getByRole("button", { name: "点我继续浏览" })
@@ -249,8 +249,8 @@ class DoubanCrawler {
                             });
                     }
 
-                    const hasContent =
-                        (await page.locator(".item-root").count()) > 0;
+                    const hasContent = await page.locator(".item-root");
+
                     if (!hasContent) {
                         const detailText = await page
                             .locator(
@@ -399,7 +399,7 @@ class DoubanCrawler {
 async function main() {
     const scraper = new DoubanCrawler({
         concurrency: 1,
-        delayBetweenRequests: { min: 13000, max: 20000 },
+        delayBetweenRequests: { min: 10000, max: 17000 },
         maxRetries:1
     });
 

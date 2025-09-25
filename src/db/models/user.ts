@@ -20,6 +20,11 @@ User.init({
     primaryKey: true,
     autoIncrement:true,
      allowNull:false,
+                 get() {
+    const value = this.getDataValue('id');
+    return value ? BigInt(value) : null;
+  },
+     
   },
   username:{
     comment: '用户昵称',

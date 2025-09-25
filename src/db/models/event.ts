@@ -16,9 +16,9 @@ class Event extends Model<
     InferAttributes<Event>,
     InferCreationAttributes<Event>
 > {
-    declare id?: CreationOptional<number>;
+    declare id?: CreationOptional<bigint>;
     declare userID: bigint;
-    declare scheduleID: number;
+    declare scheduleID: bigint;
     declare note?: string;
 }
 
@@ -30,18 +30,30 @@ Event.init(
             unique: true,
             primaryKey: true,
             autoIncrement: true,
+            get() {
+    const value = this.getDataValue('id');
+    return value ? BigInt(value) : null;
+  },
         },
         userID:{
           type:BIGINT,
           comment: "用户ID",
           allowNull:false,
-          field:"user_id"
+          field:"user_id",
+          get() {
+    const value = this.getDataValue('userID');
+    return value ? BigInt(value) : null;
+  },
         },
         scheduleID:{
           type:BIGINT,
           comment: "排片表ID",
           allowNull:false,
-          field:"schedule_id"
+          field:"schedule_id",
+          get() {
+    const value = this.getDataValue('scheduleID');
+    return value ? BigInt(value) : null;
+  },
         },
         note:{
           type:STRING,
@@ -66,16 +78,16 @@ Event.init(
 // 告诉父母表要一对多
 // 告诉子表从属于哪个父母表
 User.hasMany(Event,{
-  foreignKey: {name: 'user_id',allowNull:false},
+  foreignKey: {name: 'userID',allowNull:false},
   onDelete:'CASCADE'
 })
-Event.belongsTo(User,{foreignKey:{ name: 'schedule_id', allowNull: false }})
+Event.belongsTo(User,{foreignKey:{ name: 'userID', allowNull: false }})
 
 Schedule.hasMany(Event, {
-  foreignKey: { name: 'schedule_id', allowNull: false },
+  foreignKey: { name: 'scheduleID', allowNull: false },
   onDelete: 'CASCADE',   // 删除排片时级联删除
 });
-Event.belongsTo(Schedule, { foreignKey:{ name: 'schedule_id', allowNull: false } });
+Event.belongsTo(Schedule, { foreignKey:{ name: 'scheduleID', allowNull: false } });
 
 
 export default Event;

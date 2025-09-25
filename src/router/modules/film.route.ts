@@ -16,6 +16,7 @@ filmRouter.get("/list", async (ctx: any, next: any) => {
     const pageNumber = parseInt(pageNo as string, 10);
     const pageSizeNumber = parseInt(pageSize as string, 10);
     const result = await getFilmList(pageNumber, pageSizeNumber,searchVal);
+    console.log("film list结果",result)
     ctx.body = result;
 });
 

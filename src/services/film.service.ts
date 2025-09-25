@@ -43,6 +43,7 @@ const limitStringLength = (str: string, maxLength: number): string => {
 };
 
 const cleanData = (data: FilmItem): FilmItem => {
+
     if (data.nameHK) {
         data.nameHK = normalizeBroadwayFilmName(data.nameHK);
     }
@@ -66,12 +67,13 @@ const cleanData = (data: FilmItem): FilmItem => {
 };
 
 class FilmService {
-    async addFilmData(data: FilmItem): Promise<FilmItem | null> {
+    async addFilmData(data: FilmItem): Promise<FilmModel | null> {
         const target = await this.searchByName(data.nameHK);
         if (target) return null;
 
         try {
-            return await FilmModel.create(cleanData(data));
+            const res = await FilmModel.create(cleanData(data));
+            return res
         } catch (createError) {
             throw createError;
         }
@@ -99,7 +101,7 @@ class FilmService {
             } catch (updateError) {
                 console.error(
                     "Error in updateFilmData",
-                    JSON.stringify(updateError)
+                    updateError
                 );
                 throw updateError;
             }
@@ -115,7 +117,7 @@ class FilmService {
     }
 
     // 根据raw_name查询电影，返回sequelize实例
-    private async searchByName(rawName: string) {
+   async searchByName(rawName: string): Promise<FilmModel | null> {
         //格式化名字
         if (!rawName) return null;
         const formattedName = normalizeBroadwayFilmName(rawName);
@@ -141,7 +143,7 @@ class FilmService {
         } catch (error) {
             console.error(
                 "从数据库获取单个电影时发生错误",
-                JSON.stringify(error)
+                error
             );
             return null;
         }
@@ -161,7 +163,7 @@ class FilmService {
             const res = await FilmModel.findAll(filterOptions);
             return res.map((item) => item.toJSON()) || [];
         } catch (error) {
-            console.error("查询电影时发生错误", JSON.stringify(error));
+            console.error("查询电影时发生错误", error);
             return [];
         }
     }
@@ -197,18 +199,18 @@ class FilmService {
         if (attributes && attributes.length) {
             options.attributes = attributes;
         }
-        console.log(JSON.stringify(options));
+        console.log(options);
         try {
             const result = await FilmModel.findAndCountAll(options);
 
             return {
-                data: result.rows,
+                data: result.rows.map(row => row.toJSON()),
                 total: result.count,
                 pageNo: pageNo,
                 pageSize: pageSize,
             };
         } catch (error) {
-            console.error("分页查询电影列表时发生错误", JSON.stringify(error));
+            console.error("分页查询电影列表时发生错误", error);
             return {
                 data: null,
                 total: 0,

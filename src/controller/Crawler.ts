@@ -69,7 +69,7 @@ class Crawler {
                         );
                         result.uploadSuccess = success;
                         result.uploadFailed = failed;
-
+                        delete result.data;
                         resolve(result);
                     } catch (error) {
                         reject(
@@ -96,6 +96,7 @@ class Crawler {
         targetID: bigint,
         source: FILM_SOURCE
     ) {
+      console.log("按照电影院添加排片",targetID,typeof targetID);
         if (!data || !Array.isArray(data) || !targetID) return;
         for (const cinemaItem of data) {
             const { cinemaName } = cinemaItem;
@@ -136,7 +137,7 @@ class Crawler {
                 item.source = source;
 
                 const { scheduleByCinemaArr, ...baseInfo } = item;
-                let searchRes = await filmService.fuzzySearchByName(
+                let searchRes = await filmService.searchByName(
                     baseInfo.nameHK
                 );
 
@@ -148,11 +149,11 @@ class Crawler {
                         failed++;
                         continue;
                     }
-                    searchRes = {...addRes};
+                    searchRes = addRes;
                 }
-
+                console.log(searchRes?.id,typeof searchRes?.id)
                 newData.push({
-                    id: searchRes.id,
+                    id: searchRes?.id,
                     nameHK: item.nameHK,
                     posterUrlExternal: item.posterUrlExternal,
                 });

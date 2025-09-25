@@ -25,7 +25,7 @@ class UserService {
         } catch (error) {
             console.error(
                 "从数据库获取用户数据时发生错误",
-                JSON.stringify(error)
+                error
             );
             return null;
         }
