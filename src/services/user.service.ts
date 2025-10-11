@@ -40,11 +40,9 @@ class UserService {
             const res = await UserModel.create(data);
             if(res.id){
               console.log(`添加用户${res.id}成功`);
-              const {id,username,email} = res
+              const {id,username,email} = res.toJSON()
               return {id,username,email};
             }
-
-            
         } catch (err) {
             console.log("添加用户失败", err);
             return null

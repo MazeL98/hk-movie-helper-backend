@@ -23,7 +23,12 @@ useRouter.post('/register', async(ctx :any)  => {
     ctx.throw(400, "该邮箱已被注册");
   }
   const result = await createUser({username,email,password})
-  ctx.body = result;
+  if(result){
+    ctx.body=result
+  } else {
+    ctx.status = 200;
+    ctx.body = {message: "创建失败，请稍后重试"}
+  }
 })
 
 
@@ -67,7 +72,7 @@ useRouter.post('/login',async(ctx:any) =>{
 useRouter.post("/refresh",async(ctx) =>{
   const refreshToken = ctx.cookies.get("refreshToken");
   if(!refreshToken) {
-    ctx.throw(401,'Can not find refresh token')
+    ctx.throw(401,'没有找到 refresh token')
     return
   }
 
@@ -77,10 +82,10 @@ useRouter.post("/refresh",async(ctx) =>{
     if(typeof payload === 'object'){
       const newAccessToken = generateAccessToken({id:payload.id,email:payload.email})
       ctx.body = {accessToken:newAccessToken}
-    }
+    } 
   } catch (err ) {
     ctx.status = 401;
-    ctx.body = {message: "Invalid refresh token"}
+    ctx.body = {message: "无效的 refresh token"}
   }
 })
 
