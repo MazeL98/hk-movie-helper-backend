@@ -33,7 +33,8 @@ app.use(cors({
 // 注册路由
 app.use(router.routes());
 
-
+// 让koa信任nginx反向代理的请求，默认其是https的
+app.proxy = true;
 
 app.listen(ENV_CONFIG.APP_PORT, () => {;
   console.log(`Server is running at http://localhost:${ENV_CONFIG.APP_PORT}`);
