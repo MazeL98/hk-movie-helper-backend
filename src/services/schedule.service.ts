@@ -144,6 +144,7 @@ class ScheduleService {
                 include: [
                     {
                         model: EventModel,
+                        as:"event",
                         where: { user_id: userID },
                         attributes: [],
                     },

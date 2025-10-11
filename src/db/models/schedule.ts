@@ -84,16 +84,19 @@ Schedule.init(
 
 Film.hasMany(Schedule, {
     foreignKey: { name: "filmID", allowNull: false },
+    as:"schedule",
     onDelete: "CASCADE",
 });
-Schedule.belongsTo(Film, { foreignKey: { name: "filmID", allowNull: false } });
+Schedule.belongsTo(Film, { foreignKey: { name: "filmID", allowNull: false },as:"film" });
 
 Cinema.hasMany(Schedule, {
     foreignKey: { name: "cinemaID", allowNull: false },
+    as: "schedule",
     onDelete: "CASCADE",
 });
 Schedule.belongsTo(Cinema, {
     foreignKey: { name: "cinemaID", allowNull: false },
+    as:"cinema"
 });
 
 export default Schedule;

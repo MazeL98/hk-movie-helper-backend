@@ -79,15 +79,17 @@ Event.init(
 // 告诉子表从属于哪个父母表
 User.hasMany(Event,{
   foreignKey: {name: 'userID',allowNull:false},
+  as:"event",
   onDelete:'CASCADE'
 })
-Event.belongsTo(User,{foreignKey:{ name: 'userID', allowNull: false }})
+Event.belongsTo(User,{foreignKey:{ name: 'userID', allowNull: false },as:"user"})
 
 Schedule.hasMany(Event, {
   foreignKey: { name: 'scheduleID', allowNull: false },
+  as:"event",
   onDelete: 'CASCADE',   // 删除排片时级联删除
 });
-Event.belongsTo(Schedule, { foreignKey:{ name: 'scheduleID', allowNull: false } });
+Event.belongsTo(Schedule, { foreignKey:{ name: 'scheduleID', allowNull: false },  as:"schedule", });
 
 
 export default Event;
