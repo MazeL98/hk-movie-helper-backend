@@ -6,7 +6,7 @@ export const QI_NIU = {
   buckets:{
     cineplan:{
       bucket_name: 'cineplan',
-      domain: 'http://cnpl-assets.mazel98.com'
+      domain: 'https://cnpl-assets.mazel98.com'
     }
   }
 }
