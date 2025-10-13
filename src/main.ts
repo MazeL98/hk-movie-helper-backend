@@ -22,6 +22,9 @@ console.log = function (...args: Parameters<typeof console.log>):void {
 console.error = console.log; // 也可以单独重写
 
 const app = new Koa();
+// 让koa信任nginx反向代理的请求，默认其是https的
+app.proxy = true;
+
 app.use(bodyParser());
 
 app.use(responseFormatter);
@@ -30,17 +33,17 @@ app.use(cors({
   allowMethods: ['GET', 'POST', 'OPTIONS'],
   allowHeaders: ['Content-Type']
 }))
-// 注册路由
-app.use(router.routes());
-
-// 让koa信任nginx反向代理的请求，默认其是https的
-app.proxy = true;
 
 app.use(async (ctx, next) => {
   console.log('Request protocol:', ctx.protocol); // 'http' or 'https'
   console.log('X-Forwarded-Proto:', ctx.headers['x-forwarded-proto']);
   await next();
 });
+// 注册路由
+app.use(router.routes());
+
+
+
 
 app.listen(ENV_CONFIG.APP_PORT, () => {;
   console.log(`Server is running at http://localhost:${ENV_CONFIG.APP_PORT}`);
