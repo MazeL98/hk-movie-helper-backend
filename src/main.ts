@@ -38,6 +38,7 @@ app.proxy = true;
 
 app.use(async (ctx, next) => {
   console.log('Request protocol:', ctx.protocol); // 'http' or 'https'
+  console.log('X-Forwarded-Proto:', ctx.headers['x-forwarded-proto']);
   await next();
 });
 
